@@ -1,9 +1,19 @@
 const {
+  getAllPatients,
   createPatient,
   getPatientById,
   updatePatientById,
   deletePatientById,
 } = require("../models/patientModel");
+
+const getAllPatientsController = (req, res) => {
+  getAllPatients((err, results) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    res.send(results);
+  });
+}
 
 const createPatientController = (req, res) => {
   const patient = req.body;
@@ -50,6 +60,7 @@ const deletePatientController = (req, res) => {
 };
 
 module.exports = {
+  getAllPatientsController,
   createPatientController,
   getPatientController,
   updatePatientController,

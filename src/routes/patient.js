@@ -1,5 +1,6 @@
 const express = require("express");
 const {
+  getAllPatientsController,
   createPatientController,
   getPatientController,
   updatePatientController,
@@ -11,6 +12,9 @@ const {
 } = require("../middleware/authMiddleware");
 
 const router = express.Router();
+
+// Only admins can view all patients
+router.get("/", authenticateToken, authorizeAdmin, getAllPatientsController);
 
 // Only admins can create patients
 router.post("/", authenticateToken, authorizeAdmin, createPatientController);

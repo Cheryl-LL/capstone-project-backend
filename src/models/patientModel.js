@@ -1,5 +1,10 @@
 const connection = require("../configs/db");
 
+const getAllPatients = (callback) => {
+  const query = "SELECT * FROM ExistingClient";
+  connection.query(query, callback);
+};
+
 const createPatient = (patient, callback) => {
   const query = `
   INSERT INTO ExistingClient (
@@ -112,6 +117,7 @@ const deletePatientById = (clientId, callback) => {
 };
 
 module.exports = {
+  getAllPatients,
   createPatient,
   getPatientById,
   updatePatientById,

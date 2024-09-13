@@ -2,7 +2,7 @@ const connection = require("../configs/db");
 
 const createUser = (user, callback) => {
   const query =
-    "INSERT INTO users (firstName, lastName, email, password, phoneNumber, address, postalCode, city, province, role, profilePicture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO users (firstName, lastName, email, password, phoneNumber, address, postalCode, city, province, isAdmin, role, profilePicture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   const values = [
     user.firstName,
     user.lastName,
@@ -13,10 +13,11 @@ const createUser = (user, callback) => {
     user.postalCode,
     user.city,
     user.province,
+    user.isAdmin,
     user.role,
-    user.profilePicture,
-    // user.position
+    user.profilePicture || null
   ];
+  console.log("Values being inserted:", values);
 
   connection.query(query, values, callback);
 };
@@ -41,20 +42,21 @@ const getUserById = (id, callback) => {
 
 const updateUserById = (id, user, callback) => {
   const query =
-    "UPDATE users SET firstName = ?, lastName = ?, email = ?, phoneNumber = ?, address = ?, postalCode = ?, city = ?, province = ?, role = ?, profilePicture = ?, position = ? WHERE id = ?";
+    "UPDATE users SET firstName = ?, lastName = ?, email = ?, password =?, phoneNumber = ?, address = ?, postalCode = ?, city = ?, province = ?, isAdmin = ?, role = ?, profilePicture = ? WHERE id = ?";
   const values = [
     user.firstName,
     user.lastName,
     user.email,
+    user.password,
     user.phoneNumber,
     user.address,
     user.postalCode,
     user.city,
     user.province,
+    user.isAdmin ? 1 : 0, 
     user.role,
-    user.profilePicture,
-    user.position,
-    id,
+    user.profilePicture || null, 
+    id 
   ];
 
   connection.query(query, values, callback);

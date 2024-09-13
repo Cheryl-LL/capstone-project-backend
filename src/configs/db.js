@@ -16,36 +16,36 @@ connection.connect((err) => {
   }
   console.log("Connected to the MySQL database.");
 
-  // Check if the user table exists and create it if it doesn't
-  const createTableQuery = `
-  CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    firstName VARCHAR(50) NOT NULL,
-    lastName VARCHAR(50) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    phoneNumber VARCHAR(20) NOT NULL,
-    address VARCHAR(100) NOT NULL,
-    postalCode VARCHAR(10) NOT NULL,
-    city VARCHAR(50) NOT NULL,
-    province VARCHAR(50) NOT NULL,
-    role VARCHAR(50) NOT NULL,
-    profilePicture VARCHAR(255),
-    resetPasswordToken VARCHAR(255),
-    resetPasswordExpires DATETIME,
-    captchaCode VARCHAR(6),
-    position VARCHAR(10),
-  );
-  `;
+    // Check if the user table exists and create it if it doesn't
+    const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      firstName VARCHAR(50) NOT NULL,
+      lastName VARCHAR(50) NOT NULL,
+      email VARCHAR(100) NOT NULL UNIQUE,
+      password VARCHAR(255) NOT NULL,
+      phoneNumber VARCHAR(20) NOT NULL,
+      address VARCHAR(100) NOT NULL,
+      postalCode VARCHAR(10) NOT NULL,
+      city VARCHAR(50) NOT NULL,
+      province VARCHAR(50) NOT NULL,
+      isAdmin TINYINT(1),
+      profilePicture VARCHAR(255),
+      resetPasswordToken VARCHAR(255),
+      resetPasswordExpires DATETIME,
+      captchaCode VARCHAR(6),
+      role VARCHAR(10)
+    );
+    `;
+  
+    connection.query(createTableQuery, (err, results) => {
+      if (err) {
+        return err;
+      }
+      console.log("Users table is created.");
+    });
 
-  connection.query(createTableQuery, (err, results) => {
-    if (err) {
-      return err;
-    }
-    console.log("Users table is created.");
-  });
-
-  // Check if the existing client table exists and create it if it doesn't
+  // Create ExistingClient table
   const createExistingClientTableQuery = `
   CREATE TABLE IF NOT EXISTS ExistingClient (
     clientId INT AUTO_INCREMENT PRIMARY KEY,
@@ -75,10 +75,9 @@ connection.connect((err) => {
     invoiceId VARCHAR(5),
     consentId VARCHAR(5),
     scheduleId VARCHAR(5),
-    teamMemberId VARCHAR(5),
-    outsideProviderId VARCHAR(5)
+    teamMemberId VARCHAR(5)
   );
-    `;
+  `;
 
   connection.query(createExistingClientTableQuery, (err, results) => {
     if (err) {
@@ -86,26 +85,69 @@ connection.connect((err) => {
       return;
     }
     console.log("ExistingClient table is created.");
-  });
 
-  // Check if the existing consent table exists and create it if it doesn't
-  const createConsentTableQuery = `
-  CREATE TABLE IF NOT EXISTS consent (
-    consentId INT AUTO_INCREMENT PRIMARY KEY,
-    clientId INT NOT NULL,
-    permission TEXT NOT NULL,
-    receivedDate DATE NOT NULL,
-    withdrawDate DATE,
-    FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
-  );
-      `;
+    // Create contract table after ExistingClient is created
+    const createContractTableQuery = `
+    CREATE TABLE IF NOT EXISTS contract (
+      contractId INT AUTO_INCREMENT PRIMARY KEY,
+      clientId INT NOT NULL,
+      startDate DATE NOT NULL,
+      endDate DATE NOT NULL,
+      hourPerService INT NOT NULL,
+      FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+    );
+    `;
+    
+    connection.query(createContractTableQuery, (err, results) => {
+      if (err) {
+        console.error("Error creating Contract table:", err);
+        return;
+      }
+      console.log("Contract table is created.");
+    });
 
-  connection.query(createConsentTableQuery, (err, results) => {
-    if (err) {
-      console.error("Error creating Consent table:", err);
-      return;
-    }
-    console.log("Consent table is created.");
+    // Create consent table after ExistingClient is created
+    const createConsentTableQuery = `
+    CREATE TABLE IF NOT EXISTS consent (
+      consentId INT AUTO_INCREMENT PRIMARY KEY,
+      clientId INT NOT NULL,
+      permission TEXT NOT NULL,
+      receivedDate DATE NOT NULL,
+      withdrawDate DATE,
+      FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+    );
+    `;
+    
+    connection.query(createConsentTableQuery, (err, results) => {
+      if (err) {
+        console.error("Error creating Consent table:", err);
+        return;
+      }
+      console.log("Consent table is created.");
+    });
+
+    // Create InsuranceInfo table after ExistingClient is created
+    const createInsuranceInfoTableQuery = `
+    CREATE TABLE IF NOT EXISTS InsuranceInfo (
+      insuranceInfoId INT AUTO_INCREMENT PRIMARY KEY,
+      clientId INT NOT NULL,
+      insuranceProvider VARCHAR(50) NOT NULL,
+      primaryPlanName VARCHAR(50) NOT NULL,
+      certificateId VARCHAR(50) NOT NULL,
+      coverateDetail TEXT,
+      startDate DATE NOT NULL,
+      endDate DATE NOT NULL,
+      FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+    );
+    `;
+    
+    connection.query(createInsuranceInfoTableQuery, (err, results) => {
+      if (err) {
+        console.error("Error creating InsuranceInfo table:", err);
+        return;
+      }
+      console.log("InsuranceInfo table is created.");
+    });
   });
 });
 

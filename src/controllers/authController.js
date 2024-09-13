@@ -242,25 +242,17 @@ const registerUserController = async (req, res) => {
     firstName,
     lastName,
     email,
+    password,
     phoneNumber,
     address,
     postalCode,
     city,
     province,
+    isAdmin,
     role,
-    profilePicture,
-    password,
+    profilePicture
     
   } = req.body;
-
-  const validRoles = ["admin", "service"];
-  if (!validRoles.includes(role)) {
-    return res
-      .status(400)
-      .send({
-        message: 'Invalid role. Role must be either "admin" or "service".',
-      });
-  }
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -273,6 +265,7 @@ const registerUserController = async (req, res) => {
       postalCode,
       city,
       province,
+      isAdmin,
       role,
       profilePicture,
       password: hashedPassword,
@@ -307,14 +300,13 @@ const loginUserController = (req, res) => {
       const passwordMatch = await bcrypt.compare(password, user.password);
       if (passwordMatch) {
         const token = jwt.sign(
-          { id: user.id, email: user.email, role: user.role },
+          { id: user.id, email: user.email, isAdmin: user.isAdmin },
           process.env.JWT_SECRET,
           { expiresIn: "1d" }
         );
 
         // Exclude the password from the user object
         const { password, ...userWithoutPassword } = user;
-
         res.json({
           token,
           user: userWithoutPassword,

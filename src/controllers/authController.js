@@ -21,7 +21,7 @@
 //     role,
 //     profilePicture,
 //     password,
-    
+
 //   } = req.body;
 
 //   const validRoles = ["admin", "service"];
@@ -100,7 +100,6 @@
 //     }
 //   });
 // };
-
 
 // const requestPasswordReset = async (req, res) => {
 //   const { email } = req.body;
@@ -226,7 +225,6 @@
 //   resetPassword,
 // };
 
-
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -237,49 +235,15 @@ const {
   updateUserByEmail,
 } = require("../models/userModel");
 
-const registerUserController = async (req, res) => {
-  const {
-    firstName,
-    lastName,
-    email,
-    password,
-    phoneNumber,
-    address,
-    postalCode,
-    city,
-    province,
-    isAdmin,
-    role,
-    profilePicture
-    
-  } = req.body;
+const registerUserController = (req, res) => {
+  const user = { ...req.body };
 
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = {
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-      address,
-      postalCode,
-      city,
-      province,
-      isAdmin,
-      role,
-      profilePicture,
-      password: hashedPassword,
-    };
-
-    createUser(user, (err, results) => {
-      if (err) {
-        return res.status(400).send(err);
-      }
-      res.status(201).send(results);
-    });
-  } catch (error) {
-    res.status(500).send(error);
-  }
+  createUser(user, (err, results) => {
+    if (err) {
+      return res.status(400).send(err);
+    }
+    res.status(201).send(results);
+  });
 };
 
 const loginUserController = (req, res) => {
@@ -321,7 +285,6 @@ const loginUserController = (req, res) => {
     }
   });
 };
-
 
 const requestPasswordReset = async (req, res) => {
   const { email } = req.body;
@@ -375,14 +338,15 @@ const requestPasswordReset = async (req, res) => {
     res.status(200).json({
       message: "A CAPTCHA code has been sent to your email address",
       captchaCode,
-      email
+      email,
     });
   } catch (error) {
     console.error("Error during password reset request:", error);
-    res.status(500).json({ error: "An error occurred during the password reset request" });
+    res
+      .status(500)
+      .json({ error: "An error occurred during the password reset request" });
   }
 };
-
 
 const resetPassword = async (req, res) => {
   const { email, newPassword, captchaCode } = req.body;
@@ -435,7 +399,6 @@ const resetPassword = async (req, res) => {
     res.status(500).send(error);
   }
 };
-
 
 module.exports = {
   registerUserController,

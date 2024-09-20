@@ -16,8 +16,8 @@ connection.connect((err) => {
   }
   console.log("Connected to the MySQL database.");
 
-    // Check if the user table exists and create it if it doesn't
-    const createTableQuery = `
+  // Check if the user table exists and create it if it doesn't
+  const createUserTableQuery = `
     CREATE TABLE IF NOT EXISTS users (
       id INT AUTO_INCREMENT PRIMARY KEY,
       firstName VARCHAR(50) NOT NULL,
@@ -37,13 +37,13 @@ connection.connect((err) => {
       role VARCHAR(10)
     );
     `;
-  
-    connection.query(createTableQuery, (err, results) => {
-      if (err) {
-        return err;
-      }
-      console.log("Users table is created.");
-    });
+
+  connection.query(createUserTableQuery, (err, results) => {
+    if (err) {
+      return err;
+    }
+    console.log("Users table is created.");
+  });
 
   // Create ExistingClient table
   const createExistingClientTableQuery = `
@@ -97,7 +97,7 @@ connection.connect((err) => {
       FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
     );
     `;
-    
+
     connection.query(createContractTableQuery, (err, results) => {
       if (err) {
         console.error("Error creating Contract table:", err);
@@ -117,7 +117,7 @@ connection.connect((err) => {
       FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
     );
     `;
-    
+
     connection.query(createConsentTableQuery, (err, results) => {
       if (err) {
         console.error("Error creating Consent table:", err);
@@ -140,7 +140,7 @@ connection.connect((err) => {
       FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
     );
     `;
-    
+
     connection.query(createInsuranceInfoTableQuery, (err, results) => {
       if (err) {
         console.error("Error creating InsuranceInfo table:", err);
@@ -148,6 +148,28 @@ connection.connect((err) => {
       }
       console.log("InsuranceInfo table is created.");
     });
+  });
+
+  // Create contract table after ExistingClient is created
+  const createFileTableQuery = `
+      CREATE TABLE IF NOT EXISTS files (
+        fileId INT AUTO_INCREMENT PRIMARY KEY,
+        urlId VARCHAR(255) NOT NULL,
+        fileName VARCHAR(50),
+        filePath VARCHAR(255),
+        fileSize INT,
+        fileType VARCHAR(10),
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+      );
+      `;
+
+  connection.query(createFileTableQuery, (err, results) => {
+    if (err) {
+      console.error("Error creating Contract table:", err);
+      return;
+    }
+    console.log("Contract table is created.");
   });
 });
 

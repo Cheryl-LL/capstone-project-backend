@@ -154,7 +154,9 @@ connection.connect((err) => {
   const createFileTableQuery = `
       CREATE TABLE IF NOT EXISTS files (
         fileId INT AUTO_INCREMENT PRIMARY KEY,
+        clientId INT NOT NULL,
         urlId VARCHAR(255) NOT NULL,
+        
         fileName VARCHAR(50),
         filePath VARCHAR(255),
         fileSize INT,

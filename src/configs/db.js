@@ -29,12 +29,17 @@ connection.connect((err) => {
       postalCode VARCHAR(10) NOT NULL,
       city VARCHAR(50) NOT NULL,
       province VARCHAR(50) NOT NULL,
-      isAdmin TINYINT(1),
-      profilePicture VARCHAR(255),
+      rate FLOAT NOT NULL, 
+      isAdmin TINYINT(1) NOT NOLL,
+      isOutsideProvider TINYINT(1) NOT NULL,
+      agency VARCHAR(50) NOT NULL,
+      beneficiary VARCHAR(50),
+      contractStartDate Date NOT NULL,
+      contractEndDate Date NOT NULL,
       resetPasswordToken VARCHAR(255),
       resetPasswordExpires DATETIME,
       captchaCode VARCHAR(6),
-      role VARCHAR(10)
+      role VARCHAR(10)NOT NULL
     );
     `;
 
@@ -75,7 +80,8 @@ connection.connect((err) => {
     invoiceId VARCHAR(5),
     consentId VARCHAR(5),
     scheduleId VARCHAR(5),
-    teamMemberId VARCHAR(5)
+    teamMemberId VARCHAR(5),
+    outsideProviderId VARCHAR(5)
   );
   `;
 
@@ -156,11 +162,10 @@ connection.connect((err) => {
         fileId INT AUTO_INCREMENT PRIMARY KEY,
         clientId INT NOT NULL,
         urlId VARCHAR(255) NOT NULL,
-        
         fileName VARCHAR(50),
         filePath VARCHAR(255),
         fileSize INT,
-        fileType VARCHAR(10),
+        fileType VARCHAR(50),
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
       );

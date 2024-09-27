@@ -8,29 +8,22 @@ const getAllPatients = (callback) => {
 const createPatient = (patient, callback) => {
   const query = `
   INSERT INTO ExistingClient (
-    aType, teamMemberList, guardianList, consentList, insurance, invoice, psNote,
-    firstName, lastName, gender, birthDate, address, postalCode, phone, email,
-    diagnosis, school, age, currentStatus, fscdIdNum, contractId, guardianId,
-    insuranceInfoId, invoiceId, consentId, scheduleId, teamMemberId, outsideProviderId
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    psNote, firstName, lastName, gender, birthDate, address, city, postalCode, phoneNumber, email,
+    school, age, currentStatus, fscdIdNum, contractId, guardianId,
+    insuranceInfoId, diagnosisId, consentId, teamMemberId, outsideProviderId
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
   const values = [
-    patient.aType,
-    patient.teamMemberList,
-    patient.guardianList,
-    patient.consentList,
-    patient.insurance,
-    patient.invoice,
     patient.psNote,
     patient.firstName,
     patient.lastName,
     patient.gender,
     patient.birthDate,
     patient.address,
+    patient.city,
     patient.postalCode,
-    patient.phone,
+    patient.phoneNumber,
     patient.email,
-    patient.diagnosis,
     patient.school,
     patient.age,
     patient.currentStatus,
@@ -38,9 +31,8 @@ const createPatient = (patient, callback) => {
     patient.contractId,
     patient.guardianId,
     patient.insuranceInfoId,
-    patient.invoiceId,
+    patient.diagnosisId,
     patient.consentId,
-    patient.scheduleId,
     patient.teamMemberId,
     patient.outsideProviderId,
   ];

@@ -1,11 +1,13 @@
+const bcrypt = require("bcrypt");
 const {
   getAllUsers,
   getUserById,
   updateUserById,
   deleteUserById,
   getUserByEmail,
-  updateUserByIdBySelf,
+  getPasswordByUserId,
 } = require("../models/userModel");
+
 
 const getAllUsersController = (req, res) => {
   getAllUsers((err, results) => {
@@ -65,50 +67,100 @@ const updateUserByIdByAdminController = (req, res) => {
 };
 
 // Controller to update user by self
-const updateUserByIdBySelfController = (req, res) => {
+const updateUserByIdBySelfController = async (req, res) => {
   const userId = req.params.id;
   const loggedInUserId = req.user.id;
 
-  // Check if the logged-in user matches the user ID in the URL
   if (String(userId) !== String(loggedInUserId)) {
-    return res
-      .status(403)
-      .send({ message: "You are not authorized to update this profile." });
+    return res.status(403).send({ message: "You are not authorized to update this profile." });
   }
 
-  // Define allowed fields for self-update
-  const allowedFields = [
-    "password",
-    "phoneNumber",
-    "address",
-    "postalCode",
-    "city",
-    "province",
-    "profilePicture",
-  ];
-
-  // Check if the user is sending more info than allowed
+  const allowedFields = ["phoneNumber", "address", "postalCode", "city", "province", "profilePicture"];
   const sentFields = Object.keys(req.body);
-  const invalidFields = sentFields.filter(
-    (field) => !allowedFields.includes(field)
-  );
+  const invalidFields = sentFields.filter((field) => !allowedFields.includes(field));
 
   if (invalidFields.length > 0) {
     return res.status(400).send({
-      message: `The following fields are not allowed to be updated: ${invalidFields.join(
-        ", "
-      )}`,
+      message: `The following fields are not allowed to be updated: ${invalidFields.join(", ")}`,
     });
   }
 
-  // Proceed with self-update (restricted fields)
-  updateUserById(userId, req.body, false, (err, results) => {
-    if (err) {
-      return res.status(400).send(err);
-    }
-    res.send(results);
-  });
+  try {
+    const results = await new Promise((resolve, reject) => {
+      updateUserById(userId, req.body, false, (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
+    });
+    res.send({ message: "User updated successfully.", results });
+  } catch (error) {
+    res.status(500).send({ message: "Error updating user." });
+  }
 };
+
+
+const changePasswordController = async (req, res) => {
+  const userId = req.params.id;
+  const loggedInUserId = req.user.id;
+
+  // Ensure the user is updating their own password
+  if (String(userId) !== String(loggedInUserId)) {
+    return res.status(403).send({ message: "You are not authorized to change this password." });
+  }
+
+  const { currentPassword, newPassword } = req.body;
+
+  // Validate request data
+  if (!currentPassword || !newPassword) {
+    return res.status(400).send({ message: "Current password and new password are required." });
+  }
+
+  try {
+    // Fetch the current password from the database
+    const results = await new Promise((resolve, reject) => {
+      getPasswordByUserId(loggedInUserId, (error, results) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(results);
+      });
+    });
+
+    if (!results || results.length === 0) {
+      return res.status(404).send({ message: "User not found." });
+    }
+
+    const user = results[0];
+    console.log("Current Password:", currentPassword, "Stored Hashed Password:", user.password);
+
+    // Verify the current password
+    const isCurrentPasswordMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentPasswordMatch) {
+      return res.status(401).send({ message: "Current password is incorrect." });
+    }
+
+    // Check if the new password is different from the current password
+    const isNewPasswordSame = await bcrypt.compare(newPassword, user.password);
+    if (isNewPasswordSame) {
+      return res.status(400).send({ message: "New password must be different from the current password." });
+    }
+
+    // Call updateUserById to update the password
+    const updateUser = { password: newPassword };
+    updateUserById(userId, updateUser, false, (updateError) => {
+      if (updateError) {
+        return res.status(500).send({ message: "Error updating password: " + updateError.message });
+      }
+      res.send({ message: "Password changed successfully." });
+    });
+
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).send({ message: "Server error: " + error.message });
+  }
+};
+
+
 
 const deleteUserByIdController = (req, res) => {
   deleteUserById(req.params.id, (err, results) => {
@@ -125,4 +177,5 @@ module.exports = {
   updateUserByIdByAdminController,
   deleteUserByIdController,
   updateUserByIdBySelfController,
-};
+  changePasswordController,
+}

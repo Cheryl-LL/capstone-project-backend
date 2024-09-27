@@ -306,7 +306,7 @@ const requestPasswordReset = async (req, res) => {
     }
 
     const user = results[0];
-    const captchaCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit CAPTCHA code
+    const captchaCode = Math.floor(100000 + Math.random() * 900000).toString();
     const resetPasswordExpires = new Date(Date.now() + 3600000)
       .toISOString()
       .slice(0, 19)
@@ -341,7 +341,6 @@ const requestPasswordReset = async (req, res) => {
       email,
     });
   } catch (error) {
-    console.error("Error during password reset request:", error);
     res
       .status(500)
       .json({ error: "An error occurred during the password reset request" });

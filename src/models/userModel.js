@@ -5,8 +5,13 @@ const createUser = async (user, callback) => {
   try {
     const hashedPassword = await bcrypt.hash(user.password, 10);
 
-    const query =
-      "INSERT INTO users (firstName, lastName, email, password, phoneNumber, address, postalCode, city, province, isAdmin, role, profilePicture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const query = `
+      INSERT INTO users (
+        firstName, lastName, email, password, phoneNumber, address, postalCode, city, province, SIN, rate, isAdmin, isOutsideProvider,
+        agency, beneficiary, licencingCollege, registrationNumber, contractStartDate, contractEndDate, resetPasswordToken, resetPasswordExpires,
+        captchaCode, role, fileId
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
     const values = [
       user.firstName,
@@ -18,9 +23,21 @@ const createUser = async (user, callback) => {
       user.postalCode,
       user.city,
       user.province,
+      user.SIN,
+      user.rate,
       user.isAdmin,
+      user.isOutsideProvider,
+      user.agency,
+      user.beneficiary || null,
+      user.licencingCollege || null,
+      user.registrationNumber || null,
+      user.contractStartDate,
+      user.contractEndDate,
+      user.resetPasswordToken || null,
+      user.resetPasswordExpires || null,
+      user.captchaCode || null,
       user.role,
-      user.profilePicture || null,
+      user.fileId || null,
     ];
 
     console.log("Values being inserted:", values);
@@ -147,10 +164,19 @@ const deleteUserById = (id, callback) => {
   connection.query(query, [id], callback);
 };
 
+
+const getPasswordByUserId = (userId, callback) => {
+  const query = 'SELECT password FROM users WHERE id = ?';
+  connection.query(query, [userId], callback);
+};
+
+
+
 module.exports = {
   createUser,
   getAllUsers,
   getUserByEmail,
+  getPasswordByUserId,
   getUserById,
   updateUserById,
   deleteUserById,

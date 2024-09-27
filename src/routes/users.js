@@ -6,6 +6,7 @@ const {
   updateUserByIdByAdminController,
   deleteUserByIdController,
   updateUserByIdBySelfController,
+  changePasswordController,
 } = require("../controllers/userController");
 const {
   authenticateToken,
@@ -28,5 +29,7 @@ router.delete(
   deleteUserByIdController
 );
 router.patch("/:id/profile", authenticateToken, updateUserByIdBySelfController);
+router.patch('/:id/change-password', authenticateToken, changePasswordController);
+
 
 module.exports = router;

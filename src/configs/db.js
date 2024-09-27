@@ -29,17 +29,22 @@ connection.connect((err) => {
       postalCode VARCHAR(10) NOT NULL,
       city VARCHAR(50) NOT NULL,
       province VARCHAR(50) NOT NULL,
+      SIN VARCHAR(50) NOT NULL,
       rate FLOAT NOT NULL, 
-      isAdmin TINYINT(1) NOT NOLL,
+      isAdmin TINYINT(1) NOT NULL,
       isOutsideProvider TINYINT(1) NOT NULL,
       agency VARCHAR(50) NOT NULL,
       beneficiary VARCHAR(50),
+      licencingCollege VARCHAR(50),
+      registrationNumber VARCHAR(50),
       contractStartDate Date NOT NULL,
       contractEndDate Date NOT NULL,
       resetPasswordToken VARCHAR(255),
       resetPasswordExpires DATETIME,
       captchaCode VARCHAR(6),
-      role VARCHAR(10)NOT NULL
+      role VARCHAR(10) NOT NULL,
+      fileId INT,
+      FOREIGN KEY (fileId) REFERENCES files(fileId) ON DELETE CASCADE
     );
     `;
 
@@ -54,34 +59,27 @@ connection.connect((err) => {
   const createExistingClientTableQuery = `
   CREATE TABLE IF NOT EXISTS ExistingClient (
     clientId INT AUTO_INCREMENT PRIMARY KEY,
-    aType VARCHAR(50),
-    teamMemberList VARCHAR(50),
-    guardianList VARCHAR(50),
-    consentList VARCHAR(200),
-    insurance VARCHAR(100),
-    invoice VARCHAR(50),
     psNote VARCHAR(200),
     firstName VARCHAR(50) NOT NULL,
     lastName VARCHAR(50) NOT NULL,
     gender VARCHAR(20) NOT NULL,
     birthDate DATE NOT NULL,
     address VARCHAR(100) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    province VARCHAR(50) NOT NULL,
     postalCode VARCHAR(10) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
+    phoneNumber VARCHAR(20) NOT NULL,
     email VARCHAR(100) NOT NULL,
-    diagnosis VARCHAR(100),
-    school VARCHAR(50),
+    diagnosisId VARCHAR(100),
+    school VARCHAR(50) NOT NULL,
     age INT,
     currentStatus BOOLEAN,
     fscdIdNum VARCHAR(20),
-    contractId VARCHAR(5),
-    guardianId VARCHAR(5),
-    insuranceInfoId VARCHAR(5),
-    invoiceId VARCHAR(5),
-    consentId VARCHAR(5),
-    scheduleId VARCHAR(5),
-    teamMemberId VARCHAR(5),
-    outsideProviderId VARCHAR(5)
+    contractId INT NOT NULL,
+    guardianId INT NOT NULL,
+    insuranceInfoId INT,
+    consentId INT,
+    teamMemberId INT
   );
   `;
 
@@ -94,7 +92,7 @@ connection.connect((err) => {
 
     // Create contract table after ExistingClient is created
     const createContractTableQuery = `
-    CREATE TABLE IF NOT EXISTS contract (
+    CREATE TABLE IF NOT EXISTS clienContract (
       contractId INT AUTO_INCREMENT PRIMARY KEY,
       clientId INT NOT NULL,
       startDate DATE NOT NULL,

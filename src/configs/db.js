@@ -92,7 +92,7 @@ connection.connect((err) => {
 
     // Create contract table after ExistingClient is created
     const createContractTableQuery = `
-    CREATE TABLE IF NOT EXISTS clienContract (
+    CREATE TABLE IF NOT EXISTS clientContract (
       contractId INT AUTO_INCREMENT PRIMARY KEY,
       clientId INT NOT NULL,
       startDate DATE NOT NULL,

@@ -61,47 +61,26 @@ const getPatientById = (clientId, callback) => {
 };
 
 const updatePatientById = (clientId, patient, callback) => {
-  const query = `
-    UPDATE ExistingClient SET
-      aType = ?, teamMemberList = ?, guardianList = ?, consentList = ?, insurance = ?, invoice = ?, psNote = ?,
-      firstName = ?, lastName = ?, gender = ?, birthDate = ?, address = ?, postalCode = ?, phone = ?, email = ?,
-      diagnosis = ?, school = ?, age = ?, currentStatus = ?, fscdIdNum = ?, contractId = ?, guardianId = ?,
-      insuranceInfoId = ?, invoiceId = ?, consentId = ?, scheduleId = ?, teamMemberId = ?, outsideProviderId = ?
-    WHERE clientId = ?
-  `;
-  const values = [
-    patient.aType,
-    patient.teamMemberList,
-    patient.guardianList,
-    patient.consentList,
-    patient.insurance,
-    patient.invoice,
-    patient.psNote,
-    patient.firstName,
-    patient.lastName,
-    patient.gender,
-    patient.birthDate,
-    patient.address,
-    patient.postalCode,
-    patient.phone,
-    patient.email,
-    patient.diagnosis,
-    patient.school,
-    patient.age,
-    patient.currentStatus,
-    patient.fscdIdNum,
-    patient.contractId,
-    patient.guardianId,
-    patient.insuranceInfoId,
-    patient.invoiceId,
-    patient.consentId,
-    patient.scheduleId,
-    patient.teamMemberId,
-    patient.outsideProviderId,
-    clientId,
-  ];
+  // Initialize an array to hold the field assignments
+  const fields = [];
+  const values = [];
+
+  // Iterate over the patient object to dynamically create the query
+  Object.keys(patient).forEach((key) => {
+    if (patient[key] !== undefined) {
+      fields.push(`${key} = ?`);
+      values.push(patient[key]);
+    }
+  });
+
+  // Join the fields array with commas to form the SET clause
+  const query = `UPDATE ExistingClient SET ${fields.join(', ')} WHERE clientId = ?`;
+  values.push(clientId); // Add clientId to the values array
+
+  // Execute the query
   connection.query(query, values, callback);
 };
+
 
 const deletePatientById = (clientId, callback) => {
   const query = "DELETE FROM ExistingClient WHERE clientId = ?";

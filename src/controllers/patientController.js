@@ -41,21 +41,47 @@ const getPatientController = (req, res) => {
 const updatePatientController = (req, res) => {
   const { clientId } = req.params;
   const patient = req.body;
-  updatePatientById(clientId, patient, (err, results) => {
+
+  // check if the patient exists
+  getPatientById(clientId, (err, results) => {
     if (err) {
       return res.status(500).send(err);
     }
-    res.status(200).send(results);
+    if (results.length === 0) {
+      return res.status(404).send("Patient not found");
+    }
+
+    // update if the patient exists
+    updatePatientById(clientId, patient, (err, updateResults) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+      res.status(200).send(updateResults);
+    });
   });
 };
 
+
+
 const deletePatientController = (req, res) => {
   const { clientId } = req.params;
-  deletePatientById(clientId, (err, results) => {
+
+  // check if the patient exists
+  getPatientById(clientId, (err, results) => {
     if (err) {
       return res.status(500).send(err);
     }
-    res.status(200).send(results);
+    if (results.length === 0) {
+      return res.status(404).send("Patient not found");
+    }
+
+    // delete if the patient exists
+    deletePatientById(clientId, (err, deleteResults) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+      res.status(200).send({ message: "Patient successfully deleted" });
+    });
   });
 };
 

@@ -42,7 +42,7 @@ connection.connect((err) => {
       resetPasswordToken VARCHAR(255),
       resetPasswordExpires DATETIME,
       captchaCode VARCHAR(6),
-      role VARCHAR(10) NOT NULL,
+      role VARCHAR(50) NOT NULL,
       fileId INT,
       FOREIGN KEY (fileId) REFERENCES files(fileId) ON DELETE CASCADE
     );

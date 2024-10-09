@@ -15,7 +15,8 @@ router.post("/reset", resetPassword);
 router.post("/forgot", requestPasswordReset);
 
 // Registration endpoint
-router.post("/register", authenticateToken, authorizeAdmin, registerUserController);
+// router.post("/register", authenticateToken, authorizeAdmin, registerUserController);
+router.post("/register", registerUserController);
 
 // Login endpoint
 router.post("/login", loginUserController);

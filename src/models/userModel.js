@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const connection = require("../configs/db");
 
+// Function to create a new user
 const createUser = async (user, callback) => {
   try {
     const hashedPassword = await bcrypt.hash(user.password, 10);
@@ -40,33 +41,32 @@ const createUser = async (user, callback) => {
       user.fileId || null,
     ];
 
-    console.log("Values being inserted:", values);
-
     connection.query(query, values, callback);
   } catch (error) {
     callback(error);
   }
 };
 
+// Function to retrieve all users
 const getAllUsers = (callback) => {
   const query = "SELECT * FROM users";
-
   connection.query(query, callback);
 };
 
+// Function to get a user by email
 const getUserByEmail = (email, callback) => {
   const query = "SELECT * FROM users WHERE email = ?";
-
   connection.query(query, [email], callback);
 };
 
-const getUserById = (id, callback) => {
-  const query = "SELECT * FROM users WHERE id = ?";
-
-  connection.query(query, [id], callback);
+// Function to get a user by userId
+const getUserById = (userId, callback) => {
+  const query = "SELECT * FROM users WHERE userId = ?";  // Updated to userId
+  connection.query(query, [userId], callback);
 };
 
-const updateUserById = async (id, user, isAdminUpdate, callback) => {
+// Function to update a user by userId
+const updateUserById = async (userId, user, isAdminUpdate, callback) => {
   try {
     let fields = [];
     let values = [];
@@ -139,16 +139,16 @@ const updateUserById = async (id, user, isAdminUpdate, callback) => {
     }
 
     // Build the query string
-    const query = `UPDATE users SET ${fields.join(", ")} WHERE id = ?`;
-    values.push(id);
+    const query = `UPDATE users SET ${fields.join(", ")} WHERE userId = ?`;
+    values.push(userId);
 
     connection.query(query, values, callback);
   } catch (error) {
     callback(error);
   }
 };
-  
 
+// Function to update user by email
 const updateUserByEmail = (email, updates, callback) => {
   const fields = Object.keys(updates)
     .map((field) => `${field} = ?`)
@@ -158,19 +158,17 @@ const updateUserByEmail = (email, updates, callback) => {
   connection.query(query, values, callback);
 };
 
-const deleteUserById = (id, callback) => {
-  const query = "DELETE FROM users WHERE id = ?";
-
-  connection.query(query, [id], callback);
-};
-
-
-const getPasswordByUserId = (userId, callback) => {
-  const query = 'SELECT password FROM users WHERE id = ?';
+// Function to delete a user by userId
+const deleteUserById = (userId, callback) => {
+  const query = "DELETE FROM users WHERE userId = ?";
   connection.query(query, [userId], callback);
 };
 
-
+// Function to get the password by userId
+const getPasswordByUserId = (userId, callback) => {
+  const query = "SELECT password FROM users WHERE userId = ?";
+  connection.query(query, [userId], callback);
+};
 
 module.exports = {
   createUser,
@@ -181,4 +179,4 @@ module.exports = {
   updateUserById,
   deleteUserById,
   updateUserByEmail,
-}
+};

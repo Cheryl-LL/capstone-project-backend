@@ -19,7 +19,7 @@ connection.connect((err) => {
   // Check if the user table exists and create it if it doesn't
   const createUserTableQuery = `
     CREATE TABLE IF NOT EXISTS users (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT AUTO_INCREMENT PRIMARY KEY,
       firstName VARCHAR(50) NOT NULL,
       lastName VARCHAR(50) NOT NULL,
       email VARCHAR(100) NOT NULL UNIQUE,
@@ -175,6 +175,26 @@ connection.connect((err) => {
       return;
     }
     console.log("Contract table is created.");
+  });
+
+  // Create TeamMember table to establish a many-to-many relationship between users and clients
+  const createTeamMemberTableQuery = `
+CREATE TABLE IF NOT EXISTS TeamMember (
+  teamMemberId INT AUTO_INCREMENT PRIMARY KEY,
+  clientId INT NOT NULL,
+  userId INT NOT NULL,
+  schedule VARCHAR(100),
+  FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
+  FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+);
+`;
+
+  connection.query(createTeamMemberTableQuery, (err, results) => {
+    if (err) {
+      console.error("Error creating TeamMember table:", err);
+      return;
+    }
+    console.log("TeamMember table is created.");
   });
 });
 

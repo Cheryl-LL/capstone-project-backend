@@ -264,9 +264,9 @@ const loginUserController = (req, res) => {
       const passwordMatch = await bcrypt.compare(password, user.password);
       if (passwordMatch) {
         const token = jwt.sign(
-          { id: user.id, email: user.email, isAdmin: user.isAdmin },
+          { id: user.userId, email: user.email, isAdmin: user.isAdmin },
           process.env.JWT_SECRET,
-          { expiresIn: "1d" }
+          { expiresIn: "1h" }
         );
 
         // Exclude the password from the user object
@@ -398,6 +398,8 @@ const resetPassword = async (req, res) => {
     res.status(500).send(error);
   }
 };
+
+
 
 module.exports = {
   registerUserController,

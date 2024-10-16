@@ -11,7 +11,7 @@ var authRouter = require("./src/routes/auth");
 var patientRouter = require("./src/routes/patient");
 var fileUploadRouter = require("./src/routes/fileUpload");
 var teamMemberRouter = require("./src/routes/teamMember");
-
+let guardianRoutes = require("./src/routes/guardians");
 var app = express();
 
 require("./src/configs/db");
@@ -38,6 +38,7 @@ app.use("/auth", authRouter);
 app.use("/patients", patientRouter);
 app.use("/files", fileUploadRouter);
 app.use("/team-member",teamMemberRouter);
+app.use("/guardians", guardianRoutes);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

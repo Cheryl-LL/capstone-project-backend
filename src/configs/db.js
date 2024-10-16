@@ -16,6 +16,58 @@ connection.connect((err) => {
   }
   console.log("Connected to the MySQL database.");
 
+  // create Primary Guardian Table
+const createPrimaryGuardianTableQuery = `
+CREATE TABLE IF NOT EXISTS PrimaryGuardian (
+  guardianId INT AUTO_INCREMENT PRIMARY KEY,
+  clientId INT NOT NULL,
+  firstName VARCHAR(50) NOT NULL,
+  lastName VARCHAR(50) NOT NULL,
+  relationship VARCHAR(50),
+  phoneNumber VARCHAR(20),
+  email VARCHAR(100) NOT NULL,
+  address VARCHAR(100),
+  city VARCHAR(50),
+  province VARCHAR(50),
+  postalCode VARCHAR(10),
+  FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+);
+`;
+
+connection.query(createPrimaryGuardianTableQuery, (err, results) => {
+if (err) {
+  console.error("Error creating PrimaryGuardian table:", err);
+  return;
+}
+console.log("PrimaryGuardian table is created.");
+});
+
+// Create SecondaryGuardian table
+const createSecondaryGuardianTableQuery = `
+CREATE TABLE IF NOT EXISTS SecondaryGuardian (
+  guardianId INT AUTO_INCREMENT PRIMARY KEY,
+  clientId INT NOT NULL,
+  firstName VARCHAR(50),
+  lastName VARCHAR(50),
+  relationship VARCHAR(50),
+  phoneNumber VARCHAR(20),
+  email VARCHAR(100) NOT NULL,
+  address VARCHAR(100),
+  city VARCHAR(50),
+  province VARCHAR(50),
+  postalCode VARCHAR(10),
+  FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+);
+`;
+
+connection.query(createSecondaryGuardianTableQuery, (err, results) => {
+if (err) {
+  console.error("Error creating SecondaryGuardian table:", err);
+  return;
+}
+console.log("SecondaryGuardian table is created.");
+});
+
   // Check if the user table exists and create it if it doesn't
   const createUserTableQuery = `
     CREATE TABLE IF NOT EXISTS users (
@@ -79,7 +131,8 @@ connection.connect((err) => {
     guardianId INT NOT NULL,
     insuranceInfoId INT,
     consentId INT,
-    teamMemberId INT
+    teamMemberId INT,
+    grade VARCHAR(10)
   );
   `;
 

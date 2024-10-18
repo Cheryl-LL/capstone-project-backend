@@ -16,57 +16,6 @@ connection.connect((err) => {
   }
   console.log("Connected to the MySQL database.");
 
-  // create Primary Guardian Table
-const createPrimaryGuardianTableQuery = `
-CREATE TABLE IF NOT EXISTS PrimaryGuardian (
-  guardianId INT AUTO_INCREMENT PRIMARY KEY,
-  clientId INT NOT NULL,
-  firstName VARCHAR(50) NOT NULL,
-  lastName VARCHAR(50) NOT NULL,
-  relationship VARCHAR(50),
-  phoneNumber VARCHAR(20),
-  email VARCHAR(100) NOT NULL,
-  address VARCHAR(100),
-  city VARCHAR(50),
-  province VARCHAR(50),
-  postalCode VARCHAR(10),
-  FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
-);
-`;
-
-connection.query(createPrimaryGuardianTableQuery, (err, results) => {
-if (err) {
-  console.error("Error creating PrimaryGuardian table:", err);
-  return;
-}
-console.log("PrimaryGuardian table is created.");
-});
-
-// Create SecondaryGuardian table
-const createSecondaryGuardianTableQuery = `
-CREATE TABLE IF NOT EXISTS SecondaryGuardian (
-  guardianId INT AUTO_INCREMENT PRIMARY KEY,
-  clientId INT NOT NULL,
-  firstName VARCHAR(50),
-  lastName VARCHAR(50),
-  relationship VARCHAR(50),
-  phoneNumber VARCHAR(20),
-  email VARCHAR(100) NOT NULL,
-  address VARCHAR(100),
-  city VARCHAR(50),
-  province VARCHAR(50),
-  postalCode VARCHAR(10),
-  FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
-);
-`;
-
-connection.query(createSecondaryGuardianTableQuery, (err, results) => {
-if (err) {
-  console.error("Error creating SecondaryGuardian table:", err);
-  return;
-}
-console.log("SecondaryGuardian table is created.");
-});
 
   // Check if the user table exists and create it if it doesn't
   const createUserTableQuery = `
@@ -142,6 +91,7 @@ console.log("SecondaryGuardian table is created.");
       return;
     }
     console.log("ExistingClient table is created.");
+
 
     // Create contract table after ExistingClient is created
     const createContractTableQuery = `
@@ -250,5 +200,51 @@ CREATE TABLE IF NOT EXISTS TeamMember (
     console.log("TeamMember table is created.");
   });
 });
+
+// create Primary Guardian Table
+const createPrimaryGuardianTableQuery = `
+CREATE TABLE IF NOT EXISTS PrimaryGuardian (
+  guardianId INT AUTO_INCREMENT PRIMARY KEY,
+  clientId INT NOT NULL,
+  custody VARCHAR(100) NOT NULL,
+  firstName VARCHAR(50) NOT NULL,
+  lastName VARCHAR(50) NOT NULL,
+  relationship VARCHAR(50),
+  phoneNumber VARCHAR(20),
+  email VARCHAR(100) NOT NULL,
+  address VARCHAR(100),
+  city VARCHAR(50),
+  province VARCHAR(50),
+  postalCode VARCHAR(10),
+  FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+);
+`;
+
+connection.query(createPrimaryGuardianTableQuery, (err, results) => {
+if (err) {
+  console.error("Error creating PrimaryGuardian table:", err);
+  return;
+}
+console.log("PrimaryGuardian table is created.");
+});
+
+/*
+const insertUserQuery = `
+  INSERT INTO users (
+    firstName, lastName, email, password, phoneNumber, address, postalCode, city, province, SIN, rate, isAdmin, isOutsideProvider, agency, beneficiary, licencingCollege, registrationNumber, contractStartDate, contractEndDate, role, fileId
+  ) VALUES (
+    'Chi-Lun', 'Huang', 'th0099666@gmail.com', '12345', '4033332390', '533 14Ave Ne', 'T2E 1E8', 'Calgary', 'AB', '123456789', 20, 1, 0, 'Bridging Abilities', 'Brother', '', '', '2024-02-29', '2025-03-01', 'Aide', NULL
+  );
+`;
+
+connection.query(insertUserQuery, (err, results) => {
+  if (err) {
+    console.error('Error inserting user:', err);
+    return;
+  }
+  console.log('User inserted successfully:', results);
+});
+*/
+
 
 module.exports = connection;

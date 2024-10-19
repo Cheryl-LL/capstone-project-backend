@@ -228,6 +228,60 @@ if (err) {
 console.log("PrimaryGuardian table is created.");
 });
 
+// src/db.js (Add this code after the connection is established)
+
+// Create waitlistClient table
+const createWaitlistClientTableQuery = `
+CREATE TABLE IF NOT EXISTS waitlistClient (
+  waitlistClientId INT AUTO_INCREMENT PRIMARY KEY,
+  clientId INT,
+  datePlaced DATE NOT NULL,
+  dateContact DATE NOT NULL,
+  dateServiceOffered DATE,
+  dateStartedService DATE,
+  community VARCHAR(100),
+  fundingSources VARCHAR(255),
+  serviceNeeded VARCHAR(255),
+  consultHistory TEXT,
+  dateConsultationBooked DATE,
+  firstName VARCHAR(50) NOT NULL,
+  lastName VARCHAR(50) NOT NULL,
+  gender VARCHAR(20),
+  birthDate DATE,
+  address VARCHAR(100),
+  postalCode VARCHAR(10),
+  phoneNumber VARCHAR(20),
+  email VARCHAR(100),
+  diagnosis VARCHAR(255),
+  school VARCHAR(100),
+  age INT,
+  fscdIdNum VARCHAR(50),
+  caseWorkerName VARCHAR(50),
+  serviceType VARCHAR(100),
+  serviceProvidersNeeded VARCHAR(255),
+  availability VARCHAR(255),
+  locationOfService VARCHAR(100),
+  feesDiscussed VARCHAR(255),
+  followUp VARCHAR(255),
+  referralFrom VARCHAR(255),
+  previousService VARCHAR(255),
+  paperworkDeadline DATE,
+  nextMeetingDate DATE,
+  concerns TEXT,
+  isArchived BOOLEAN NOT NULL,
+  FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+);
+`;
+
+connection.query(createWaitlistClientTableQuery, (err, results) => {
+  if (err) {
+    console.error("Error creating waitlistClient table:", err);
+    return;
+  }
+  console.log("waitlistClient table is created or already exists.");
+});
+
+
 /*
 const insertUserQuery = `
   INSERT INTO users (

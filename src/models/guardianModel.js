@@ -3,11 +3,12 @@ const connection = require("../configs/db");
 // Create a new primary guardian
 const createPrimaryGuardian = (guardian, callback) => {
   const query = `
-    INSERT INTO PrimaryGuardian (clientId, firstName, lastName, relationship, phoneNumber, email, address, city, province, postalCode)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO PrimaryGuardian (clientId, custody, firstName, lastName, relationship, phoneNumber, email, address, city, province, postalCode)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?)
   `;
   const values = [
     guardian.clientId,
+    guardian.custody,
     guardian.firstName,
     guardian.lastName,
     guardian.relationship,

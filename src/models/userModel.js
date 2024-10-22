@@ -60,10 +60,18 @@ const getUserByEmail = (email, callback) => {
 };
 
 // Function to get a user by userId
-const getUserById = (userId, callback) => {
-  const query = "SELECT * FROM users WHERE userId = ?";  // Updated to userId
-  connection.query(query, [userId], callback);
+const getUserById = (userId) => {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM users WHERE userId = ?";
+    
+    connection.query(query, [userId], (err, results) => {
+      if (err) return reject(err); 
+
+      resolve(results.length ? results[0] : null); 
+    });
+  });
 };
+
 
 // Function to update a user by userId
 const updateUserById = async (userId, user, isAdminUpdate, callback) => {
@@ -126,11 +134,6 @@ const updateUserById = async (userId, user, isAdminUpdate, callback) => {
     if (user.role && isAdminUpdate) {
       fields.push("role = ?");
       values.push(user.role);
-    }
-
-    if (user.profilePicture) {
-      fields.push("profilePicture = ?");
-      values.push(user.profilePicture);
     }
 
     // If no fields to update, return an error

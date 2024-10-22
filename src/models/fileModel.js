@@ -3,17 +3,19 @@ const connection = require("../configs/db"); // Import the MySQL connection
 // insert file details into the database
 const uploadFile = (fileData, callback) => {
   const query = `
-    INSERT INTO files (clientId, urlId, fileName, filePath, fileSize, fileType)
-    VALUES (?, ?, ?, ?, ?, ?);
+    INSERT INTO files (clientId, userId, urlId, fileName, filePath, fileSize, fileType, fileCategory)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
   `;
 
   const fileDetails = [
-    fileData.clientId,
+    fileData.clientId || null,
+    fileData.userId || null, 
     fileData.urlId,
     fileData.fileName,
     fileData.filePath,
     fileData.fileSize,
     fileData.fileType,
+    fileData.fileCategory
   ];
 
   connection.query(query, fileDetails, (err, result) => {
@@ -23,6 +25,7 @@ const uploadFile = (fileData, callback) => {
     return callback(null, result.insertId);
   });
 };
+
 
 // retrieve files based on clientId
 const findFileByClientId = (clientId, callback) => {

@@ -75,7 +75,7 @@ const updateUserByIdBySelfController = async (req, res) => {
     return res.status(403).send({ message: "You are not authorized to update this profile." });
   }
 
-  const allowedFields = ["phoneNumber", "address", "postalCode", "city", "province", "profilePicture"];
+  const allowedFields = ["phoneNumber", "address", "postalCode", "city", "province"];
   const sentFields = Object.keys(req.body);
   const invalidFields = sentFields.filter((field) => !allowedFields.includes(field));
 

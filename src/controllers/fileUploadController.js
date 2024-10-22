@@ -46,12 +46,14 @@ async function uploadSingleController(req, res) {
     blobStream.on("finish", () => {
       const publicUrl = `https://storage.googleapis.com/${bucketName}/${fileId}`;
       const fileData = {
-        clientId: req.body.clientId,
+        clientId: req.body.clientId || null,
+        userId: req.body.userId || null,
         urlId: fileId,
         fileName: file.originalname,
         filePath: publicUrl,
         fileSize: file.size,
         fileType: file.mimetype,
+        fileCategory: req.body.fileCategory
       };
       uploadFile(fileData, (err, insertId) => {
         if (err) {

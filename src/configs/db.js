@@ -19,8 +19,14 @@ const connection = mysql.createPool({
 //   }
 //   console.log("Connected to the MySQL database.");
 
+<<<<<<< HEAD
 // Check if the user table exists and create it if it doesn't
 const createUserTableQuery = `
+=======
+
+  // Check if the user table exists and create it if it doesn't
+  const createUserTableQuery = `
+>>>>>>> 9c39a4ac1e88161d0449a1159b0ccd6aa49e7d0e
     CREATE TABLE IF NOT EXISTS users (
       userId INT AUTO_INCREMENT PRIMARY KEY,
       firstName VARCHAR(50) NOT NULL,
@@ -82,7 +88,8 @@ const createExistingClientTableQuery = `
     guardianId INT NOT NULL,
     insuranceInfoId INT,
     consentId INT,
-    teamMemberId INT
+    teamMemberId INT,
+    grade VARCHAR(10)
   );
   `;
 
@@ -93,8 +100,14 @@ connection.query(createExistingClientTableQuery, (err, results) => {
   }
   console.log("ExistingClient table is created.");
 
+<<<<<<< HEAD
   // Create contract table after ExistingClient is created
   const createContractTableQuery = `
+=======
+
+    // Create contract table after ExistingClient is created
+    const createContractTableQuery = `
+>>>>>>> 9c39a4ac1e88161d0449a1159b0ccd6aa49e7d0e
     CREATE TABLE IF NOT EXISTS clientContract (
       contractId INT AUTO_INCREMENT PRIMARY KEY,
       clientId INT NOT NULL,
@@ -211,6 +224,7 @@ connection.query(createTeamMemberTableQuery, (err, results) => {
   console.log("TeamMember table is created.");
 });
 
+<<<<<<< HEAD
 const createDiagnosisTableQuery = `
   CREATE TABLE IF NOT EXISTS Diagnosis (
     diagnosis VARCHAR(50) NOT NULL,
@@ -228,5 +242,106 @@ connection.query(createDiagnosisTableQuery, (err, results) => {
   console.log("Diagnosis table is created.");
 });
 // });
+=======
+// create Primary Guardian Table
+const createPrimaryGuardianTableQuery = `
+CREATE TABLE IF NOT EXISTS PrimaryGuardian (
+  guardianId INT AUTO_INCREMENT PRIMARY KEY,
+  clientId INT NOT NULL,
+  custody VARCHAR(100) NOT NULL,
+  firstName VARCHAR(50) NOT NULL,
+  lastName VARCHAR(50) NOT NULL,
+  relationship VARCHAR(50),
+  phoneNumber VARCHAR(20),
+  email VARCHAR(100) NOT NULL,
+  address VARCHAR(100),
+  city VARCHAR(50),
+  province VARCHAR(50),
+  postalCode VARCHAR(10),
+  FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+);
+`;
+
+connection.query(createPrimaryGuardianTableQuery, (err, results) => {
+if (err) {
+  console.error("Error creating PrimaryGuardian table:", err);
+  return;
+}
+console.log("PrimaryGuardian table is created.");
+});
+
+// src/db.js (Add this code after the connection is established)
+
+// Create waitlistClient table
+const createWaitlistClientTableQuery = `
+CREATE TABLE IF NOT EXISTS waitlistClient (
+  waitlistClientId INT AUTO_INCREMENT PRIMARY KEY,
+  clientId INT,
+  datePlaced DATE NOT NULL,
+  dateContact DATE NOT NULL,
+  dateServiceOffered DATE,
+  dateStartedService DATE,
+  community VARCHAR(100),
+  fundingSources VARCHAR(255),
+  serviceNeeded VARCHAR(255),
+  consultHistory TEXT,
+  dateConsultationBooked DATE,
+  firstName VARCHAR(50) NOT NULL,
+  lastName VARCHAR(50) NOT NULL,
+  gender VARCHAR(20),
+  birthDate DATE,
+  address VARCHAR(100),
+  postalCode VARCHAR(10),
+  phoneNumber VARCHAR(20),
+  email VARCHAR(100),
+  diagnosis VARCHAR(255),
+  school VARCHAR(100),
+  age INT,
+  fscdIdNum VARCHAR(50),
+  caseWorkerName VARCHAR(50),
+  serviceType VARCHAR(100),
+  serviceProvidersNeeded VARCHAR(255),
+  availability VARCHAR(255),
+  locationOfService VARCHAR(100),
+  feesDiscussed VARCHAR(255),
+  followUp VARCHAR(255),
+  referralFrom VARCHAR(255),
+  previousService VARCHAR(255),
+  paperworkDeadline DATE,
+  nextMeetingDate DATE,
+  concerns TEXT,
+  isArchived BOOLEAN NOT NULL,
+  FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+);
+`;
+
+connection.query(createWaitlistClientTableQuery, (err, results) => {
+  if (err) {
+    console.error("Error creating waitlistClient table:", err);
+    return;
+  }
+  console.log("waitlistClient table is created or already exists.");
+});
+
+
+/*
+const insertUserQuery = `
+  INSERT INTO users (
+    firstName, lastName, email, password, phoneNumber, address, postalCode, city, province, SIN, rate, isAdmin, isOutsideProvider, agency, beneficiary, licencingCollege, registrationNumber, contractStartDate, contractEndDate, role, fileId
+  ) VALUES (
+    'Chi-Lun', 'Huang', 'th0099666@gmail.com', '12345', '4033332390', '533 14Ave Ne', 'T2E 1E8', 'Calgary', 'AB', '123456789', 20, 1, 0, 'Bridging Abilities', 'Brother', '', '', '2024-02-29', '2025-03-01', 'Aide', NULL
+  );
+`;
+
+connection.query(insertUserQuery, (err, results) => {
+  if (err) {
+    console.error('Error inserting user:', err);
+    return;
+  }
+  console.log('User inserted successfully:', results);
+});
+*/
+
+>>>>>>> 9c39a4ac1e88161d0449a1159b0ccd6aa49e7d0e
 
 module.exports = connection;

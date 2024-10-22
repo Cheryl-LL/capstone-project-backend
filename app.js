@@ -17,12 +17,15 @@ const limiter = rateLimit({
   message: "Too many requests, please try again later.",
 });
 
+
+
 var usersRouter = require("./src/routes/users");
 var authRouter = require("./src/routes/auth");
 var patientRouter = require("./src/routes/patient");
 var fileUploadRouter = require("./src/routes/fileUpload");
 var teamMemberRouter = require("./src/routes/teamMember");
-
+let guardianRoutes = require("./src/routes/guardians");
+const waitlistClientRouter = require('./src/routes/waitlistClientRouter');
 var app = express();
 
 const corsOptions = {
@@ -77,7 +80,9 @@ app.use("/users", usersRouter);
 app.use("/auth", authRouter);
 app.use("/patients", patientRouter);
 app.use("/files", fileUploadRouter);
-app.use("/team-member", teamMemberRouter);
+app.use("/team-member",teamMemberRouter);
+app.use("/guardians", guardianRoutes);
+app.use('/waitlistClient', waitlistClientRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -94,5 +99,6 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
 
 module.exports = app;

@@ -11,14 +11,6 @@ const connection = mysql.createPool({
   queueLimit: 0,
 });
 
-// Connect to the database
-// connection.connect((err) => {
-//   if (err) {
-//     console.error("Error connecting to the database:", err);
-//     return;
-//   }
-//   console.log("Connected to the MySQL database.");
-
 // Check if the user table exists and create it if it doesn't
 const createUserTableQuery = `
     CREATE TABLE IF NOT EXISTS users (
@@ -128,7 +120,7 @@ connection.query(createExistingClientTableQuery, (err, results) => {
     CREATE TABLE IF NOT EXISTS consent (
       consentId INT AUTO_INCREMENT PRIMARY KEY,
       clientId INT NOT NULL,
-      permission TEXT NOT NULL,
+      permissionNote TEXT NOT NULL,
       receivedDate DATE NOT NULL,
       withdrawDate DATE,
       FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
@@ -277,7 +269,7 @@ connection.query(createWaitlistClientTableQuery, (err, results) => {
     console.error("Error creating waitlistClient table:", err);
     return;
   }
-  console.log("waitlistClient table is created or already exists.");
+  console.log("waitlistClient table is created.");
 });
 
 const createPrimaryGuardianTableQuery = `

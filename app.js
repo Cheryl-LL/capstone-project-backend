@@ -13,19 +13,19 @@ const rateLimit = require("express-rate-limit");
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, 
+  max: 1000,
   message: "Too many requests, please try again later.",
 });
-
-
 
 var usersRouter = require("./src/routes/users");
 var authRouter = require("./src/routes/auth");
 var patientRouter = require("./src/routes/patient");
 var fileUploadRouter = require("./src/routes/fileUpload");
 var teamMemberRouter = require("./src/routes/teamMember");
-let guardianRoutes = require("./src/routes/guardians");
-const waitlistClientRouter = require('./src/routes/waitlistClientRouter');
+var guardianRoutes = require("./src/routes/guardians");
+var waitlistClientRouter = require("./src/routes/waitlistClientRouter");
+var consentRouter = require("./src/routes/consent");
+
 var app = express();
 
 const corsOptions = {
@@ -80,9 +80,10 @@ app.use("/users", usersRouter);
 app.use("/auth", authRouter);
 app.use("/patients", patientRouter);
 app.use("/files", fileUploadRouter);
-app.use("/team-member",teamMemberRouter);
+app.use("/team-member", teamMemberRouter);
 app.use("/guardians", guardianRoutes);
-app.use('/waitlistClient', waitlistClientRouter);
+app.use("/waitlistClient", waitlistClientRouter);
+app.use("/consents", consentRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -99,6 +100,5 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
-
 
 module.exports = app;

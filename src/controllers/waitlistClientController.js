@@ -1,5 +1,5 @@
 // src/controllers/waitlistClientController.js
-const waitlistClientModel = require('../models/waitlistClientModel');
+const waitlistClientModel = require('../models/waitlistClientModel.js');
 
 const waitlistClientController = {
   createWaitlistClient: (req, res) => {

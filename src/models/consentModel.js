@@ -1,39 +1,63 @@
 const connection = require("../configs/db");
 
 const createConsent = (consent, callback) => {
-	const query = 'INSERT INTO consent (consentId, clientId, permission, roles, receivedDate, withdrawDate) VALUES (?,?,?,?,?,?)';
-	const values = [consent.consentId, consent.clientId, consent.permission, consent.roles, consent.receivedDate, consent.withdrawDate];
-	
-	connection.query(query, values, callback);
+  const query =
+    "INSERT INTO consent (clientId, permissionNote, receivedDate, withdrawDate) VALUES (?,?,?,?)";
+  const values = [
+    consent.clientId,
+    consent.permissionNote,
+    consent.receivedDate,
+    consent.withdrawDate,
+  ];
+
+  // const query = 'INSERT INTO consent (consentId, clientId, permissionNote, receivedDate, withdrawDate) VALUES (?,?,?,?,?)';
+  // const values = [consent.consentId, consent.clientId, consent.permissionNote, consent.receivedDate, consent.withdrawDate];
+
+  connection.query(query, values, callback);
 };
 
-const getConsentByID = (consentId, callback) => {
-	const query = 'SELECT * FROM consent WHERE consentId = ?';
-	
-	connection.query(query, [consentId], callback);
+const getConsentById = (consentId) => {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM consent WHERE consentId = ?";
+
+    connection.query(query, [consentId], (err, result) => {
+      if (err) {
+        return reject(err);
+      }
+
+      resolve(result[0]);
+    });
+  });
 };
 
-const deleteConsentByID = (consentId, callback) => {
-	const query = 'DELETE FROM consent WHERE consentId = ?';
-	connection.query(query, [consentId], callback);
+const deleteConsentById = (consentId, callback) => {
+  const query = "DELETE FROM consent WHERE consentId = ?";
+  connection.query(query, [consentId], callback);
 };
 
-const updateByConsentID = (consentId, consent, callback) => {
-	const query = 'UPDATE consent SET clientId = ?, permission = ?, roles = ?, receivedDate = ?, withdrawDate = ? WHERE consentId = ?';
-	const values = [consent.clientId, consent.permission, consent.roles, consent.receivedDate, consent.withdrawDate, consentId];
-		
-	connection.query(query, values, callback);
+const updateByConsentId = (consentId, consent, callback) => {
+  const query =
+    "UPDATE consent SET clientId = ?, permissionNote = ?, receivedDate = ?, withdrawDate = ? WHERE consentId = ?";
+  const values = [
+    consent.clientId,
+    consent.permissionNote,
+    consent.receivedDate,
+    consent.withdrawDate,
+    consentId,
+  ];
+
+  connection.query(query, values, callback);
 };
 
 const getAllConsent = (callback) => {
-	const query = 'SELECT * FROM consent';
-	connection.query(query, callback);
+  const query = "SELECT * FROM consent";
+  connection.query(query, callback);
 };
 
 module.exports = {
-	createConsent,
-	getConsentByID,
-	deleteConsentByID,
-	updateByConsentID,
-	getAllConsent
+  createConsent,
+  getConsentById,
+  deleteConsentById,
+  updateByConsentId,
+  getAllConsent,
 };

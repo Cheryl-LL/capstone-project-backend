@@ -29,25 +29,28 @@ const assignTeamMember = (
 };
 
 // Function to get all team members for a specific client
-const getTeamMembersByClientId = (clientId, callback) => {
-  const query = `
-  SELECT 
-    ec.clientId, ec.psNote, ec.firstName, ec.lastName, ec.gender, ec.birthDate, ec.address, ec.city, ec.postalCode, 
-    ec.phoneNumber, ec.email, ec.school, ec.age, ec.currentStatus, ec.fscdIdNum, ec.contractId, ec.guardianId, 
-    ec.insuranceInfoId, ec.diagnosisId, ec.consentId, ec.teamMemberId, ec.outsideProviderId,
-    tm.teamMemberId, tm.startServiceDate, tm.endServiceDate, tm.schedule,
-    u.userId, u.firstName AS userFirstName, u.lastName AS userLastName, u.role, u.rate
-  FROM ExistingClient ec
-  JOIN TeamMember tm ON ec.clientId = tm.clientId
-  JOIN users u ON tm.userId = u.userId
-  WHERE ec.clientId = ?
-`;
-  connection.query(query, [clientId], (err, results) => {
-    if (err) {
-      console.error("Error fetching team members for client:", err);
-      return callback(err);
-    }
-    return callback(null, results);
+const getTeamMembersByClientId = (clientId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT 
+        ec.clientId, ec.psNote, ec.firstName, ec.lastName, ec.gender, ec.birthDate, ec.address, ec.city, ec.postalCode, 
+        ec.phoneNumber, ec.email, ec.school, ec.age, ec.currentStatus, ec.fscdIdNum, ec.contractId, ec.guardianId, 
+        ec.insuranceInfoId, ec.diagnosisId, ec.consentId, ec.teamMemberId, ec.outsideProviderId,
+        tm.teamMemberId, tm.startServiceDate, tm.endServiceDate, tm.schedule,
+        u.userId, u.firstName AS userFirstName, u.lastName AS userLastName, u.role, u.rate
+      FROM ExistingClient ec
+      JOIN TeamMember tm ON ec.clientId = tm.clientId
+      JOIN users u ON tm.userId = u.userId
+      WHERE ec.clientId = ?
+    `;
+
+    connection.query(query, [clientId], (err, results) => {
+      if (err) {
+        console.error("Error fetching team members for client:", err);
+        return reject(err);
+      }
+      resolve(results);
+    });
   });
 };
 
@@ -68,7 +71,6 @@ const getClientsForTeamMember = (teamMemberId) => {
   });
 };
 
-
 const checkTeamMemberbyClient = (clientId, userId, callback) => {
   const query = `
     SELECT * FROM TeamMember WHERE clientId = ? AND userId = ?
@@ -87,5 +89,5 @@ module.exports = {
   assignTeamMember,
   getTeamMembersByClientId,
   getClientsForTeamMember,
-  checkTeamMemberbyClient
+  checkTeamMemberbyClient,
 };

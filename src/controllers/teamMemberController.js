@@ -32,20 +32,20 @@ const assignTeamMemberController = (req, res) => {
 
 
 // Controller to get all team members for a specific client
-const getTeamMembersByClientIdController = (req, res) => {
+const getTeamMembersByClientIdController = async (req, res) => {
   const { clientId } = req.params;
 
   if (!clientId) {
     return res.status(400).json({ message: "Client ID is required" });
   }
 
-  // Use the model to fetch team members for the client
-  getTeamMembersByClientId(clientId, (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: "Error fetching team members", error: err });
-    }
-    res.status(200).json(results);
-  });
+  try {
+    // Fetch team members using the Promise-based function
+    const results = await getTeamMembersByClientId(clientId);
+    return res.status(200).json(results);
+  } catch (err) {
+    return res.status(500).json({ message: "Error fetching team members", error: err });
+  }
 };
 
 const getClientsForTeamMemberController = async (req, res) => {

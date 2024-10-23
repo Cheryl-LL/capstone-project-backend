@@ -86,6 +86,7 @@ connection.query(createUserTableQuery, (err, results) => {
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
         FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+        CHECK (clientId IS NOT NULL OR userId IS NOT NULL)
       );
     `;
 

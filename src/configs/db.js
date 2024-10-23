@@ -11,7 +11,6 @@ const connection = mysql.createPool({
   queueLimit: 0,
 });
 
-// Check if the user table exists and create it if it doesn't
 const createUserTableQuery = `
     CREATE TABLE IF NOT EXISTS users (
       userId INT AUTO_INCREMENT PRIMARY KEY,
@@ -28,84 +27,118 @@ const createUserTableQuery = `
       rate FLOAT NOT NULL, 
       isAdmin TINYINT(1) NOT NULL,
       isOutsideProvider TINYINT(1) NOT NULL,
-      agency VARCHAR(50) NOT NULL,
+      agency VARCHAR(50),
       beneficiary VARCHAR(50),
       licencingCollege VARCHAR(50),
       registrationNumber VARCHAR(50),
-      contractStartDate Date NOT NULL,
-      contractEndDate Date NOT NULL,
+      contractStartDate DATE NOT NULL,
+      contractEndDate DATE NOT NULL,
       resetPasswordToken VARCHAR(255),
       resetPasswordExpires DATETIME,
       captchaCode VARCHAR(6),
-      role VARCHAR(50) NOT NULL,
-      fileId INT,
-      FOREIGN KEY (fileId) REFERENCES files(fileId) ON DELETE CASCADE
+      role VARCHAR(50) NOT NULL
     );
     `;
 
 connection.query(createUserTableQuery, (err, results) => {
   if (err) {
-    return err;
+    return console.error("Error creating users table:", err);
   }
   console.log("Users table is created.");
-});
 
-// Create ExistingClient table
-const createExistingClientTableQuery = `
-  CREATE TABLE IF NOT EXISTS ExistingClient (
-    clientId INT AUTO_INCREMENT PRIMARY KEY,
-    psNote VARCHAR(200),
-    firstName VARCHAR(50) NOT NULL,
-    lastName VARCHAR(50) NOT NULL,
-    gender VARCHAR(20) NOT NULL,
-    birthDate DATE NOT NULL,
-    address VARCHAR(100) NOT NULL,
-    city VARCHAR(50) NOT NULL,
-    province VARCHAR(50) NOT NULL,
-    postalCode VARCHAR(10) NOT NULL,
-    phoneNumber VARCHAR(20) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    diagnosisId VARCHAR(100),
-    school VARCHAR(50) NOT NULL,
-    age INT,
-    grade VARCHAR(50),
-    currentStatus BOOLEAN,
-    fscdIdNum VARCHAR(20),
-    contractId INT NOT NULL,
-    guardianId INT NOT NULL,
-    insuranceInfoId INT,
-    consentId INT,
-    teamMemberId INT
-  );
+  // Create ExistingClient table next
+  const createExistingClientTableQuery = `
+    CREATE TABLE IF NOT EXISTS ExistingClient (
+      clientId INT AUTO_INCREMENT PRIMARY KEY,
+      psNote VARCHAR(200),
+      firstName VARCHAR(50) NOT NULL,
+      lastName VARCHAR(50) NOT NULL,
+      gender VARCHAR(20) NOT NULL,
+      birthDate DATE NOT NULL,
+      address VARCHAR(100) NOT NULL,
+      city VARCHAR(50) NOT NULL,
+      province VARCHAR(50) NOT NULL,
+      postalCode VARCHAR(10) NOT NULL,
+      phoneNumber VARCHAR(20) NOT NULL,
+      email VARCHAR(100) NOT NULL
+    );
   `;
 
-connection.query(createExistingClientTableQuery, (err, results) => {
-  if (err) {
-    console.error("Error creating ExistingClient table:", err);
-    return;
-  }
-  console.log("ExistingClient table is created.");
+  connection.query(createExistingClientTableQuery, (err, results) => {
+    if (err) {
+      console.error("Error creating ExistingClient table:", err);
+      return;
+    }
+    console.log("ExistingClient table is created.");
 
-  // Create contract table after ExistingClient is created
-  const createContractTableQuery = `
-    CREATE TABLE IF NOT EXISTS clientContract (
-      contractId INT AUTO_INCREMENT PRIMARY KEY,
-      clientId INT NOT NULL,
-      fileId INT NOT NULL,
-      startDate DATE NOT NULL,
-      endDate DATE NOT NULL,
-      COOhours INT,
-      PBChours INT,
-      SLPhours INT,
-      OThours INT,
-      PThours INT,
-      AIDEhours INT,
-      COUShours INT,
-      CARhours INT,
-      FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
-      FOREIGN KEY (fileId) REFERENCES Files(clientId) ON DELETE CASCADE
-    );
+    // Create Files table
+    const createFileTableQuery = `
+      CREATE TABLE IF NOT EXISTS files (
+        fileId INT AUTO_INCREMENT PRIMARY KEY,
+        clientId INT NULL,
+        userId INT NULL,
+        urlId VARCHAR(255) NOT NULL,
+        fileName VARCHAR(50),
+        filePath VARCHAR(255),
+        fileSize INT,
+        fileType VARCHAR(50),
+        fileCategory TINYINT(1) NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
+        FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+      );
     `;
+
+    connection.query(createFileTableQuery, (err, results) => {
+      if (err) {
+        console.error("Error creating File table:", err);
+        return;
+      }
+      console.log("File table is created.");
+    });
+
+    // Create TeamMember table
+    const createTeamMemberTableQuery = `
+      CREATE TABLE IF NOT EXISTS TeamMember (
+        teamMemberId INT AUTO_INCREMENT PRIMARY KEY,
+        clientId INT NOT NULL,
+        userId INT NOT NULL,
+        startServiceDate DATE NOT NULL,
+        endServiceDate DATE,
+        schedule VARCHAR(100),
+        FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
+        FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+      );
+    `;
+
+    connection.query(createTeamMemberTableQuery, (err, results) => {
+      if (err) {
+        console.error("Error creating TeamMember table:", err);
+        return;
+      }
+      console.log("TeamMember table is created.");
+    });
+  });
+
+  const createContractTableQuery = `
+  CREATE TABLE IF NOT EXISTS clientContract (
+    contractId INT AUTO_INCREMENT PRIMARY KEY,
+    clientId INT NOT NULL,
+    fileId INT NOT NULL,
+    startDate DATE NOT NULL,
+    endDate DATE NOT NULL,
+    COOhours INT,
+    PBChours INT,
+    SLPhours INT,
+    OThours INT,
+    PThours INT,
+    AIDEhours INT,
+    COUShours INT,
+    CARhours INT,
+    FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
+    FOREIGN KEY (fileId) REFERENCES Files(fileId) ON DELETE CASCADE
+  );
+  `;
 
   connection.query(createContractTableQuery, (err, results) => {
     if (err) {
@@ -157,54 +190,8 @@ connection.query(createExistingClientTableQuery, (err, results) => {
     }
     console.log("InsuranceInfo table is created.");
   });
-});
 
-// Create contract table after ExistingClient is created
-const createFileTableQuery = `
-      CREATE TABLE IF NOT EXISTS files (
-        fileId INT AUTO_INCREMENT PRIMARY KEY,
-        clientId INT NOT NULL,
-        urlId VARCHAR(255) NOT NULL,
-        fileName VARCHAR(50),
-        filePath VARCHAR(255),
-        fileSize INT,
-        fileType VARCHAR(50),
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
-      );
-      `;
-
-connection.query(createFileTableQuery, (err, results) => {
-  if (err) {
-    console.error("Error creating Contract table:", err);
-    return;
-  }
-  console.log("Contract table is created.");
-});
-
-// Create TeamMember table to establish a many-to-many relationship between users and clients
-const createTeamMemberTableQuery = `
-CREATE TABLE IF NOT EXISTS TeamMember (
-  teamMemberId INT AUTO_INCREMENT PRIMARY KEY,
-  clientId INT NOT NULL,
-  userId INT NOT NULL,
-  startServiceDate DATE NOT NULL,
-  endServiceDate DATE,
-  schedule VARCHAR(100),
-  FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
-  FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
-);
-`;
-
-connection.query(createTeamMemberTableQuery, (err, results) => {
-  if (err) {
-    console.error("Error creating TeamMember table:", err);
-    return;
-  }
-  console.log("TeamMember table is created.");
-});
-
-const createDiagnosisTableQuery = `
+  const createDiagnosisTableQuery = `
   CREATE TABLE IF NOT EXISTS Diagnosis (
     diagnosisId INT AUTO_INCREMENT PRIMARY KEY,
     diagnosis VARCHAR(50) NOT NULL,
@@ -214,16 +201,16 @@ const createDiagnosisTableQuery = `
   );
   `;
 
-connection.query(createDiagnosisTableQuery, (err, results) => {
-  if (err) {
-    console.error("Error creating Diagnosis table:", err);
-    return;
-  }
-  console.log("Diagnosis table is created.");
-});
+  connection.query(createDiagnosisTableQuery, (err, results) => {
+    if (err) {
+      console.error("Error creating Diagnosis table:", err);
+      return;
+    }
+    console.log("Diagnosis table is created.");
+  });
 
-// Create waitlistClient table
-const createWaitlistClientTableQuery = `
+  // Create waitlistClient table
+  const createWaitlistClientTableQuery = `
 CREATE TABLE IF NOT EXISTS waitlistClient (
   waitlistClientId INT AUTO_INCREMENT PRIMARY KEY,
   clientId INT,
@@ -265,15 +252,15 @@ CREATE TABLE IF NOT EXISTS waitlistClient (
 );
 `;
 
-connection.query(createWaitlistClientTableQuery, (err, results) => {
-  if (err) {
-    console.error("Error creating waitlistClient table:", err);
-    return;
-  }
-  console.log("waitlistClient table is created.");
-});
+  connection.query(createWaitlistClientTableQuery, (err, results) => {
+    if (err) {
+      console.error("Error creating waitlistClient table:", err);
+      return;
+    }
+    console.log("waitlistClient table is created.");
+  });
 
-const createPrimaryGuardianTableQuery = `
+  const createPrimaryGuardianTableQuery = `
 CREATE TABLE IF NOT EXISTS PrimaryGuardian (
   guardianId INT AUTO_INCREMENT PRIMARY KEY,
   clientId INT NOT NULL,
@@ -291,14 +278,13 @@ CREATE TABLE IF NOT EXISTS PrimaryGuardian (
 );
 `;
 
-connection.query(createPrimaryGuardianTableQuery, (err, results) => {
-if (err) {
-  console.error("Error creating PrimaryGuardian table:", err);
-  return;
-}
-console.log("PrimaryGuardian table is created.");
+  connection.query(createPrimaryGuardianTableQuery, (err, results) => {
+    if (err) {
+      console.error("Error creating PrimaryGuardian table:", err);
+      return;
+    }
+    console.log("PrimaryGuardian table is created.");
+  });
 });
-
-// });
 
 module.exports = connection;

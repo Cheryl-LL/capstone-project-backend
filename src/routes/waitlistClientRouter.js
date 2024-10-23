@@ -1,4 +1,3 @@
-// src/routes/waitlistClientRoutes.js
 const express = require('express');
 const router = express.Router();
 const waitlistClientController = require('../controllers/waitlistClientController');

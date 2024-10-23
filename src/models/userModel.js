@@ -10,8 +10,8 @@ const createUser = async (user, callback) => {
       INSERT INTO users (
         firstName, lastName, email, password, phoneNumber, address, postalCode, city, province, SIN, rate, isAdmin, isOutsideProvider,
         agency, beneficiary, licencingCollege, registrationNumber, contractStartDate, contractEndDate, resetPasswordToken, resetPasswordExpires,
-        captchaCode, role, fileId
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        captchaCode, role
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -38,7 +38,6 @@ const createUser = async (user, callback) => {
       user.resetPasswordExpires || null,
       user.captchaCode || null,
       user.role,
-      user.fileId || null,
     ];
 
     connection.query(query, values, callback);

@@ -12,21 +12,25 @@ const createDiagnosis = (diagnosis, aType, clientId, callback) => {
     INSERT INTO Diagnosis (diagnosis, aType, clientId)
     VALUES (?, ?, ?)
   `;
-  
+
   const values = [diagnosis, aType, clientId];
-  
+
   connection.query(query, values, (err, results) => {
     if (err) {
       return callback(err);
     }
     // Fetch the newly created diagnosis data
     const getDiagnosisQuery = "SELECT * FROM Diagnosis WHERE diagnosisId = ?";
-    connection.query(getDiagnosisQuery, [results.insertId], (err, diagnosisResults) => {
-      if (err) {
-        return callback(err);
+    connection.query(
+      getDiagnosisQuery,
+      [results.insertId],
+      (err, diagnosisResults) => {
+        if (err) {
+          return callback(err);
+        }
+        callback(null, diagnosisResults[0]);
       }
-      callback(null, diagnosisResults[0]);
-    });
+    );
   });
 };
 
@@ -51,7 +55,9 @@ const updateDiagnosisById = (diagnosisId, diagnosisData, callback) => {
   });
 
   // Join the fields array with commas to form the SET clause
-  const query = `UPDATE Diagnosis SET ${fields.join(', ')} WHERE diagnosisId = ?`;
+  const query = `UPDATE Diagnosis SET ${fields.join(
+    ", "
+  )} WHERE diagnosisId = ?`;
   values.push(diagnosisId); // Add diagnosisId to the values array
 
   // Execute the query
@@ -64,11 +70,26 @@ const deleteDiagnosisById = (diagnosisId, callback) => {
   connection.query(query, [diagnosisId], callback);
 };
 
+// const getDiagnosisById = (diagnosisId, callback) => {
+//   const query = "SELECT * FROM Diagnosis WHERE diagnosisId = ?";
+//   connection.query(query, [diagnosisId], callback);
+// };
+
+const getDiagnosisById = (diagnosisId, callback) => {
+  const query = "SELECT * FROM Diagnosis WHERE diagnosisId = ?";
+  connection.query(query, [diagnosisId], (err, results) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, results[0]); // Access the first result if diagnosisId is unique
+  });
+};
+
 module.exports = {
   getAllDiagnosis,
   createDiagnosis,
   getDiagnosisByClientId,
   updateDiagnosisById,
   deleteDiagnosisById,
+  getDiagnosisById,
 };
-

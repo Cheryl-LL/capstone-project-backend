@@ -206,6 +206,7 @@ connection.query(createTeamMemberTableQuery, (err, results) => {
 
 const createDiagnosisTableQuery = `
   CREATE TABLE IF NOT EXISTS Diagnosis (
+    diagnosisId INT AUTO_INCREMENT PRIMARY KEY,
     diagnosis VARCHAR(50) NOT NULL,
     aType TINYINT(1) NOT NULL,
     clientId INT NOT NULL,

@@ -26,6 +26,7 @@ var guardianRoutes = require("./src/routes/guardians");
 var waitlistClientRouter = require("./src/routes/waitlistClientRouter");
 var consentRouter = require("./src/routes/consent");
 var diagnosisRouter = require("./src/routes/diagnosis");
+var insuranceInfoRouter = require("./src/routes/insuranceInfo");
 
 var app = express();
 
@@ -83,9 +84,10 @@ app.use("/clients", patientRouter);
 app.use("/files", fileUploadRouter);
 app.use("/team-member", teamMemberRouter);
 app.use("/guardians", guardianRoutes);
-app.use("/waitlistClient", waitlistClientRouter);
+app.use("/waitlist-client", waitlistClientRouter);
 app.use("/consents", consentRouter);
 app.use("/diagnosis", diagnosisRouter);
+app.use("/insurance-info", insuranceInfoRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

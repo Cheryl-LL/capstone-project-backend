@@ -70,18 +70,13 @@ const deleteDiagnosisById = (diagnosisId, callback) => {
   connection.query(query, [diagnosisId], callback);
 };
 
-// const getDiagnosisById = (diagnosisId, callback) => {
-//   const query = "SELECT * FROM Diagnosis WHERE diagnosisId = ?";
-//   connection.query(query, [diagnosisId], callback);
-// };
-
 const getDiagnosisById = (diagnosisId, callback) => {
   const query = "SELECT * FROM Diagnosis WHERE diagnosisId = ?";
   connection.query(query, [diagnosisId], (err, results) => {
     if (err) {
       return callback(err);
     }
-    callback(null, results[0]); // Access the first result if diagnosisId is unique
+    callback(null, results[0]);
   });
 };
 

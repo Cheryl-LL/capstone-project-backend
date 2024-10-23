@@ -4,6 +4,7 @@ const {
   getConsentById,
   updateByConsentId,
   deleteConsentById,
+  getConsentByClientId,
 } = require("../models/consentModel");
 const { getTeamMembersByClientId } = require("../models/teamMemberModel");
 
@@ -36,9 +37,9 @@ const createConsentController = (req, res) => {
 // Controller to get a consent by ID
 const getConsentByIdController = async (req, res) => {
   const { consentId } = req.params;
-  const loggedInUserId = req.user.id; 
+  const loggedInUserId = req.user.id;
   const isAdmin = req.user.isAdmin;
-  console.log(consentId, loggedInUserId, isAdmin )
+  console.log(consentId, loggedInUserId, isAdmin);
 
   if (!consentId) {
     return res.status(400).json({ message: "Consent ID is required" });
@@ -47,7 +48,7 @@ const getConsentByIdController = async (req, res) => {
   try {
     // Fetch the consent by ID
     const consent = await getConsentById(consentId);
-    console.log(consent)
+    console.log(consent);
 
     if (!consent) {
       return res.status(404).json({ message: "Consent not found" });
@@ -140,6 +141,55 @@ const getAllConsentController = (req, res) => {
   });
 };
 
+// Controller to get consents by clientId
+const getConsentByClientIdController = async (req, res) => {
+  const { clientId } = req.params;
+  const loggedInUserId = req.user.id;
+  const isAdmin = req.user.isAdmin;
+
+  console.log(clientId, loggedInUserId, isAdmin);
+
+  if (!clientId) {
+    return res.status(400).json({ message: "Client ID is required" });
+  }
+
+  try {
+    // Check if the user is an admin
+    if (!isAdmin) {
+      // If not an admin, check if the user is part of the team for this client
+      const teamMembers = await getTeamMembersByClientId(clientId);
+
+      console.log(teamMembers, isAdmin);
+
+      const isTeamMember = teamMembers.some(
+        (member) => String(member.userId) === String(loggedInUserId)
+      );
+
+      if (!isTeamMember) {
+        return res.status(403).json({
+          message: "You are not authorized to view consents for this client.",
+        });
+      }
+    }
+
+    // Fetch consents by clientId
+    const consents = await getConsentByClientId(clientId);
+
+    if (!consents || consents.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No consents found for this client" });
+    }
+
+    return res.status(200).json(consents);
+  } catch (err) {
+    console.error("Error fetching consents by clientId:", err);
+    return res
+      .status(500)
+      .json({ message: "Error fetching consents", error: err });
+  }
+};
+
 // Export the controller functions
 module.exports = {
   createConsentController,
@@ -147,4 +197,5 @@ module.exports = {
   updateConsentByIdController,
   deleteConsentByIdController,
   getAllConsentController,
+  getConsentByClientIdController,
 };

@@ -10,9 +10,6 @@ const createConsent = (consent, callback) => {
     consent.withdrawDate,
   ];
 
-  // const query = 'INSERT INTO consent (consentId, clientId, permissionNote, receivedDate, withdrawDate) VALUES (?,?,?,?,?)';
-  // const values = [consent.consentId, consent.clientId, consent.permissionNote, consent.receivedDate, consent.withdrawDate];
-
   connection.query(query, values, callback);
 };
 
@@ -54,10 +51,24 @@ const getAllConsent = (callback) => {
   connection.query(query, callback);
 };
 
+const getConsentByClientId = (clientId) => {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM consent WHERE clientId = ?";
+
+    connection.query(query, [clientId], (err, result) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(result);
+    });
+  });
+};
+
 module.exports = {
   createConsent,
   getConsentById,
   deleteConsentById,
   updateByConsentId,
   getAllConsent,
+  getConsentByClientId,
 };

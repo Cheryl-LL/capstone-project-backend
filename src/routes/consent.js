@@ -1,55 +1,47 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   createConsentController,
   getConsentByIdController,
   updateConsentByIdController,
   deleteConsentByIdController,
-  getAllConsentController
-} = require('../controllers/consentController');
+  getAllConsentController,
+  getConsentByClientIdController,
+} = require("../controllers/consentController");
 const {
   authenticateToken,
   authorizeAdmin,
-} = require('../middleware/authMiddleware');
-
+} = require("../middleware/authMiddleware");
 
 // Create a new consent
-router.post(
-  '/',
-  authenticateToken,
-  authorizeAdmin,
-  createConsentController
-);
+router.post("/", authenticateToken, authorizeAdmin, createConsentController);
 
 // Get consent by ID
-router.get(
-  '/:consentId',
-  authenticateToken,
-  getConsentByIdController
-);
+router.get("/:consentId", authenticateToken, getConsentByIdController);
 
 // Update consent by ID
 router.put(
-  '/:consentId',
+  "/:consentId",
   authenticateToken,
   authorizeAdmin,
   updateConsentByIdController
 );
 
+router.get(
+  "/client/:clientId",
+  authenticateToken,
+  getConsentByClientIdController
+);
+
 // Delete consent by ID
 router.delete(
-  '/:consentId',
+  "/:consentId",
   authenticateToken,
   authorizeAdmin,
   deleteConsentByIdController
 );
 
 // Get all consents
-router.get(
-  '/',
-  authenticateToken,
-  authorizeAdmin,
-  getAllConsentController
-);
+router.get("/", authenticateToken, authorizeAdmin, getAllConsentController);
 
 module.exports = router;

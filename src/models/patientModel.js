@@ -9,9 +9,8 @@ const createPatient = (patient, callback) => {
   const query = `
   INSERT INTO ExistingClient (
     psNote, firstName, lastName, gender, birthDate, address, city, province, postalCode, phoneNumber, email,
-    school, age, currentStatus, fscdIdNum, contractId, guardianId,
-    insuranceInfoId, diagnosisId, consentId, teamMemberId, grade
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    school, age, currentStatus, fscdIdNum, grade
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
   const values = [
     patient.psNote, 
@@ -29,12 +28,6 @@ const createPatient = (patient, callback) => {
     patient.age, 
     patient.currentStatus, 
     patient.fscdIdNum, 
-    patient.contractId, 
-    patient.guardianId, 
-    patient.insuranceInfoId, 
-    patient.diagnosisId || null,  // Handles empty or null values
-    patient.consentId, 
-    patient.teamMemberId, 
     patient.grade
   ];
   connection.query(query, values, (err, results) => {

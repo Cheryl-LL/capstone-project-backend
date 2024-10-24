@@ -59,10 +59,15 @@ connection.query(createUserTableQuery, (err, results) => {
       city VARCHAR(50) NOT NULL,
       province VARCHAR(50) NOT NULL,
       postalCode VARCHAR(10) NOT NULL,
+      school VARCHAR(50),
+      age INT, 
+      fscdIdNum VARCHAR(50),
+      currentStatus BOOLEAN,
       phoneNumber VARCHAR(20) NOT NULL,
       email VARCHAR(100) NOT NULL,
       serviceStartDate DATE,
-      serviceEndDate DATE
+      serviceEndDate DATE,
+      grade VARCHAR(10)
     );
   `;
 

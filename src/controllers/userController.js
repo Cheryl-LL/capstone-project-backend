@@ -33,39 +33,35 @@ const getUserByIdController = async (req, res) => {
 };
 
 // Controller to update user by admin
-const updateUserByIdByAdminController = (req, res) => {
+const updateUserByIdByAdminController = async (req, res) => {
   const userId = req.params.id;
-  const { email } = req.body;
+  const { email, ...otherFields } = req.body;
 
-  // First, check if the user exists by ID
-  getUserById(userId, (err, userResults) => {
-    if (err) {
-      return res.status(500).send({ error: "Database query error", err });
-    }
-
-    if (userResults.length === 0) {
+  try {
+    // Check if the user exists by ID
+    const user = await getUserById(userId);
+    if (!user) {
       return res.status(404).send({ error: "User ID not found" });
     }
 
-    // If the user exists, check if the email is already in use by another user
-    getUserByEmail(email, (err, emailResults) => {
-      if (err) {
-        return res.status(500).send({ error: "Database query error", err });
-      }
-
-      if (emailResults.length > 0 && emailResults[0].id != userId) {
+    // If email is being updated, check if the email is already in use by another user
+    if (email) {
+      const userWithEmail = await getUserByEmail(email);
+      if (userWithEmail && userWithEmail.userId != userId) {
         return res.status(400).send({ error: "Email already exists" });
       }
+    }
 
-      // update user by admin
-      updateUserById(userId, req.body, true, (err, updateResults) => {
-        if (err) {
-          return res.status(400).send(err);
-        }
-        res.send(updateResults);
-      });
-    });
-  });
+    // Proceed with updating the user
+    const updateResults = await updateUserById(
+      userId,
+      { email, ...otherFields },
+      true
+    );
+    res.send(updateResults);
+  } catch (err) {
+    res.status(500).send({ error: "An error occurred", details: err.message });
+  }
 };
 
 // Controller to update user by self

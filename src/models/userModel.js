@@ -62,15 +62,14 @@ const getUserByEmail = (email, callback) => {
 const getUserById = (userId) => {
   return new Promise((resolve, reject) => {
     const query = "SELECT * FROM users WHERE userId = ?";
-    
-    connection.query(query, [userId], (err, results) => {
-      if (err) return reject(err); 
 
-      resolve(results.length ? results[0] : null); 
+    connection.query(query, [userId], (err, results) => {
+      if (err) return reject(err);
+
+      resolve(results.length ? results[0] : null);
     });
   });
 };
-
 
 // Function to update a user by userId
 const updateUserById = async (userId, user, isAdminUpdate, callback) => {
@@ -144,9 +143,15 @@ const updateUserById = async (userId, user, isAdminUpdate, callback) => {
     const query = `UPDATE users SET ${fields.join(", ")} WHERE userId = ?`;
     values.push(userId);
 
-    connection.query(query, values, callback);
+    // Return a promise so that the calling function can await it
+    return new Promise((resolve, reject) => {
+      connection.query(query, values, (err, results) => {
+        if (err) return reject(err);
+        resolve(results);
+      });
+    });
   } catch (error) {
-    callback(error);
+    throw error;
   }
 };
 

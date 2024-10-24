@@ -17,16 +17,19 @@ const getAllUsersController = (req, res) => {
   });
 };
 
-const getUserByIdController = (req, res) => {
-  getUserById(req.params.id, (err, results) => {
-    if (err) {
-      return res.status(500).send(err);
-    }
-    if (results.length === 0) {
+const getUserByIdController = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await getUserById(userId);
+
+    if (!user) {
       return res.status(404).send("User not found");
     }
-    res.send(results[0]);
-  });
+
+    res.send(user);
+  } catch (err) {
+    return res.status(500).send(err);
+  }
 };
 
 // Controller to update user by admin

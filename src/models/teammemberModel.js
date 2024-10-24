@@ -53,6 +53,7 @@ const getTeamMembersByClientId = (clientId) => {
   });
 };
 
+// Function to get all clients for a teammember
 const getClientsForTeamMember = (teamMemberId) => {
   return new Promise((resolve, reject) => {
     const query = `
@@ -72,7 +73,8 @@ const getClientsForTeamMember = (teamMemberId) => {
 
 const checkTeamMemberbyClient = (clientId, userId, callback) => {
   const query = `
-    SELECT * FROM TeamMember WHERE clientId = ? AND userId = ?
+
+    DELETE FROM TeamMember WHERE clientId = ? AND userId = ?;
   `;
   connection.query(query, [clientId, userId], (err, results) => {
     if (err) {
@@ -84,9 +86,28 @@ const checkTeamMemberbyClient = (clientId, userId, callback) => {
   });
 };
 
+// Function to unassign a teammember
+const unassignTeamMember = (clientId, userId) => {
+  console.log("delete starts");
+  return new Promise((resolve, reject) => {
+    const query = `
+      DELETE FROM TeamMember WHERE clientId = ? AND userId = ?
+    `;
+
+    connection.query(query, [clientId, userId], (err, results) => {
+      if (err) {
+        console.error("Database error while unassigning team member:", err);
+        return reject(err);
+      }
+      resolve(results);
+    });
+  });
+};
+
 module.exports = {
   assignTeamMember,
   getTeamMembersByClientId,
   getClientsForTeamMember,
   checkTeamMemberbyClient,
+  unassignTeamMember,
 };

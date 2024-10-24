@@ -72,12 +72,12 @@ const getUserById = (userId) => {
 };
 
 // Function to update a user by userId
-const updateUserById = async (userId, user, isAdminUpdate, callback) => {
+const updateUserById = async (userId, user, isAdminUpdate) => {
   try {
     let fields = [];
     let values = [];
 
-    // Build the query based on provided fields
+    // Build the query based on the fields provided
     if (user.firstName && isAdminUpdate) {
       fields.push("firstName = ?");
       values.push(user.firstName);
@@ -94,9 +94,8 @@ const updateUserById = async (userId, user, isAdminUpdate, callback) => {
     }
 
     if (user.password) {
-      const hashedPassword = await bcrypt.hash(user.password, 10);
       fields.push("password = ?");
-      values.push(hashedPassword);
+      values.push(user.password);
     }
 
     if (user.phoneNumber) {
@@ -134,16 +133,16 @@ const updateUserById = async (userId, user, isAdminUpdate, callback) => {
       values.push(user.role);
     }
 
-    // If no fields to update, return an error
+    // If no fields to update, throw an error
     if (fields.length === 0) {
-      return callback(new Error("No fields to update"));
+      throw new Error("No fields to update");
     }
 
-    // Build the query string
+    // Build the SQL query string
     const query = `UPDATE users SET ${fields.join(", ")} WHERE userId = ?`;
     values.push(userId);
 
-    // Return a promise so that the calling function can await it
+    // Return a promise to resolve or reject the database query
     return new Promise((resolve, reject) => {
       connection.query(query, values, (err, results) => {
         if (err) return reject(err);

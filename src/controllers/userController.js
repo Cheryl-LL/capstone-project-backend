@@ -110,6 +110,7 @@ const updateUserByIdBySelfController = async (req, res) => {
   }
 };
 
+// Change password
 const changePasswordController = async (req, res) => {
   const userId = req.params.id;
   const loggedInUserId = req.user.id;
@@ -131,40 +132,25 @@ const changePasswordController = async (req, res) => {
   }
 
   try {
-    // Fetch the current password from the database
-    const results = await new Promise((resolve, reject) => {
-      getPasswordByUserId(loggedInUserId, (error, results) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve(results);
-      });
-    });
-
-    if (!results || results.length === 0) {
+    // Fetch the current hashed password from the database
+    const user = await getUserById(loggedInUserId);
+    if (!user) {
       return res.status(404).send({ message: "User not found." });
     }
 
-    const user = results[0];
-    console.log(
-      "Current Password:",
-      currentPassword,
-      "Stored Hashed Password:",
-      user.password
-    );
-
-    // Verify the current password
+    // Compare the current password with the stored hashed password
     const isCurrentPasswordMatch = await bcrypt.compare(
       currentPassword,
       user.password
     );
+
     if (!isCurrentPasswordMatch) {
       return res
         .status(401)
         .send({ message: "Current password is incorrect." });
     }
 
-    // Check if the new password is different from the current password
+    // Ensure the new password is different from the current password
     const isNewPasswordSame = await bcrypt.compare(newPassword, user.password);
     if (isNewPasswordSame) {
       return res.status(400).send({
@@ -172,16 +158,14 @@ const changePasswordController = async (req, res) => {
       });
     }
 
-    // Call updateUserById to update the password
-    const updateUser = { password: newPassword };
-    updateUserById(userId, updateUser, false, (updateError) => {
-      if (updateError) {
-        return res
-          .status(500)
-          .send({ message: "Error updating password: " + updateError.message });
-      }
-      res.send({ message: "Password changed successfully." });
-    });
+    // Hash the new password before sending it to the update function
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Call updateUserById to update the password in the database
+    const updateUser = { password: hashedNewPassword };
+    await updateUserById(userId, updateUser, false);
+
+    res.send({ message: "Password changed successfully." });
   } catch (error) {
     console.error("Server error:", error);
     res.status(500).send({ message: "Server error: " + error.message });

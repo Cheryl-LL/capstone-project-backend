@@ -60,7 +60,9 @@ connection.query(createUserTableQuery, (err, results) => {
       province VARCHAR(50) NOT NULL,
       postalCode VARCHAR(10) NOT NULL,
       phoneNumber VARCHAR(20) NOT NULL,
-      email VARCHAR(100) NOT NULL
+      email VARCHAR(100) NOT NULL,
+      serviceStartDate DATE,
+      serviceEndDate DATE
     );
   `;
 
@@ -104,9 +106,8 @@ connection.query(createUserTableQuery, (err, results) => {
         teamMemberId INT AUTO_INCREMENT PRIMARY KEY,
         clientId INT NOT NULL,
         userId INT NOT NULL,
-        startServiceDate DATE NOT NULL,
+        startServiceDate DATE,
         endServiceDate DATE,
-        schedule VARCHAR(100),
         FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
         FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
       );

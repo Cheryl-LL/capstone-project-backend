@@ -4,20 +4,19 @@ const connection = require("../configs/db");
 const assignTeamMember = (
   clientId,
   userId,
-  schedule,
   startServiceDate,
   endServiceDate,
   callback
 ) => {
   const query = `
-    INSERT INTO TeamMember (clientId, userId, schedule, startServiceDate, endServiceDate)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO TeamMember (clientId, userId, startServiceDate, endServiceDate)
+    VALUES (?, ?, ?, ?)
   `;
 
   // Check if endServiceDate is provided, if not, pass null
   connection.query(
     query,
-    [clientId, userId, schedule, startServiceDate, endServiceDate || null],
+    [clientId, userId, startServiceDate, endServiceDate || null],
     (err, results) => {
       if (err) {
         console.error("Error assigning team member:", err);
@@ -35,8 +34,8 @@ const getTeamMembersByClientId = (clientId) => {
       SELECT 
         ec.clientId, ec.psNote, ec.firstName, ec.lastName, ec.gender, ec.birthDate, ec.address, ec.city, ec.postalCode, 
         ec.phoneNumber, ec.email, ec.school, ec.age, ec.currentStatus, ec.fscdIdNum, ec.contractId, ec.guardianId, 
-        ec.insuranceInfoId, ec.diagnosisId, ec.consentId, ec.teamMemberId, ec.outsideProviderId,
-        tm.teamMemberId, tm.startServiceDate, tm.endServiceDate, tm.schedule,
+        ec.insuranceInfoId, ec.diagnosisId, ec.consentId, ec.teamMemberId,
+        tm.teamMemberId, tm.startServiceDate, tm.endServiceDate, 
         u.userId, u.firstName AS userFirstName, u.lastName AS userLastName, u.role, u.rate
       FROM ExistingClient ec
       JOIN TeamMember tm ON ec.clientId = tm.clientId

@@ -3,10 +3,10 @@ const { getUserById } = require('../models/userModel');
 
 // Controller to assign a team member to a client
 const assignTeamMemberController = (req, res) => {
-  const { clientId, userId, schedule, startServiceDate, endServiceDate } = req.body;
+  const { clientId, userId, startServiceDate, endServiceDate } = req.body;
 
   // Validate required fields
-  if (!clientId || !userId || !schedule || !startServiceDate) {
+  if (!clientId || !userId ) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
@@ -21,7 +21,7 @@ const assignTeamMemberController = (req, res) => {
     }
 
     // If no result is found, proceed with the assignment
-    assignTeamMember(clientId, userId, schedule, startServiceDate, endServiceDate, (err, results) => {
+    assignTeamMember(clientId, userId, startServiceDate, endServiceDate, (err, results) => {
       if (err) {
         return res.status(500).json({ message: "Error assigning team member", error: err });
       }

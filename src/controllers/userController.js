@@ -69,12 +69,14 @@ const updateUserByIdBySelfController = async (req, res) => {
   const userId = req.params.id;
   const loggedInUserId = req.user.id;
 
+  // Check if the logged-in user is trying to update their own profile
   if (String(userId) !== String(loggedInUserId)) {
     return res
       .status(403)
       .send({ message: "You are not authorized to update this profile." });
   }
 
+  // Allowed fields for users to update their own profile
   const allowedFields = [
     "phoneNumber",
     "address",
@@ -82,6 +84,8 @@ const updateUserByIdBySelfController = async (req, res) => {
     "city",
     "province",
   ];
+
+  // Check for any invalid fields in the request
   const sentFields = Object.keys(req.body);
   const invalidFields = sentFields.filter(
     (field) => !allowedFields.includes(field)
@@ -96,15 +100,13 @@ const updateUserByIdBySelfController = async (req, res) => {
   }
 
   try {
-    const results = await new Promise((resolve, reject) => {
-      updateUserById(userId, req.body, false, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+    // Update the user with allowed fields
+    const results = await updateUserById(userId, req.body, false);
     res.send({ message: "User updated successfully.", results });
   } catch (error) {
-    res.status(500).send({ message: "Error updating user." });
+    res
+      .status(500)
+      .send({ message: "Error updating user.", error: error.message });
   }
 };
 

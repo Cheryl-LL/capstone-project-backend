@@ -33,9 +33,7 @@ const getTeamMembersByClientId = (clientId) => {
     const query = `
       SELECT 
         ec.clientId, ec.psNote, ec.firstName, ec.lastName, ec.gender, ec.birthDate, ec.address, ec.city, ec.postalCode, 
-        ec.phoneNumber, ec.email, ec.school, ec.age, ec.currentStatus, ec.fscdIdNum, ec.contractId, ec.guardianId, 
-        ec.insuranceInfoId, ec.diagnosisId, ec.consentId, ec.teamMemberId,
-        tm.teamMemberId, tm.startServiceDate, tm.endServiceDate, 
+        ec.phoneNumber, ec.email, ec.school, ec.age, ec.currentStatus, ec.fscdIdNum, tm.startServiceDate, tm.endServiceDate, 
         u.userId, u.firstName AS userFirstName, u.lastName AS userLastName, u.role, u.rate
       FROM ExistingClient ec
       JOIN TeamMember tm ON ec.clientId = tm.clientId

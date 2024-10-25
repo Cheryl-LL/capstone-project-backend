@@ -5,7 +5,7 @@ const waitlistClientModel = {
   createWaitlistClient: (data, callback) => {
     const query = `
       INSERT INTO waitlistClient (
-        clientId, datePlaced, dateContact, dateServiceOffered, dateStartedService,
+        datePlaced, dateContact, dateServiceOffered, dateStartedService,
         community, fundingSources, serviceNeeded, consultHistory, dateConsultationBooked,
         firstName, lastName, gender, birthDate, address, postalCode, phoneNumber, email,
         diagnosis, school, age, fscdIdNum, caseWorkerName, serviceType,

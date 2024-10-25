@@ -24,7 +24,6 @@ router.post(
 router.get(
   "/client/:clientId",
   authenticateToken,
-  authorizeAdmin,
   getTeamMembersByClientIdController
 );
 

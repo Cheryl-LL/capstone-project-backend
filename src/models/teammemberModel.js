@@ -72,7 +72,7 @@ const getClientsForTeamMember = (teamMemberId) => {
 const checkTeamMemberbyClient = (clientId, userId, callback) => {
   const query = `
 
-    DELETE FROM TeamMember WHERE clientId = ? AND userId = ?;
+    SELECT * FROM TeamMember WHERE clientId = ? AND userId = ?;
   `;
   connection.query(query, [clientId, userId], (err, results) => {
     if (err) {

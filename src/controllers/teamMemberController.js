@@ -42,12 +42,10 @@ const assignTeamMemberController = (req, res) => {
             .status(500)
             .json({ message: "Error assigning team member", error: err });
         }
-        res
-          .status(201)
-          .json({
-            message: "Team member assigned successfully",
-            teamMemberId: results.insertId,
-          });
+        res.status(201).json({
+          message: "Team member assigned successfully",
+          teamMemberId: results.insertId,
+        });
       }
     );
   });
@@ -75,24 +73,24 @@ const getTeamMembersByClientIdController = async (req, res) => {
 const getClientsForTeamMemberController = async (req, res) => {
   const userId = req.params.userId;
   const loggedInUserId = req.user.id;
-  console.log("Received userId:", userId);
-  console.log("logged in", req.user.id);
+  const isAdmin = req.user.isAdmin;
 
   try {
-    // Check if the team member ID matches the logged-in user's ID
-    const teamMember = await getUserById(userId);
-    console.log(teamMember);
-    if (!teamMember) {
-      return res.status(404).json({ message: "Team member not found" });
-    }
+    // Check if the team member ID matches the logged-in user's ID if not admin
+    if (!isAdmin) {
+      const teamMember = await getUserById(userId);
+      console.log(teamMember);
+      if (!teamMember) {
+        return res.status(404).json({ message: "Team member not found" });
+      }
 
-    // Verify that the logged-in user is the same as the user associated with the team member
-    if (String(userId) !== String(loggedInUserId)) {
-      return res
-        .status(403)
-        .send({ message: "You are not authorized to update this profile." });
+      // Verify that the logged-in user is the same as the user associated with the team member
+      if (String(userId) !== String(loggedInUserId)) {
+        return res
+          .status(403)
+          .send({ message: "You are not authorized to update this profile." });
+      }
     }
-
     // Fetch all clients for the team member
     const clients = await getClientsForTeamMember(userId);
     return res.status(200).json({ data: clients });
@@ -111,11 +109,9 @@ const unassignTeamMemberController = async (req, res) => {
   if (!clientId || !userId) {
     return res.status(400).json({ message: "Missing required fields" });
   }
-  
+
   try {
-    console.log('delete start')
     const results = await unassignTeamMember(clientId, userId);
-    console.log("Results from DELETE query:", results);
 
     // If no rows were affected, it means the team member was not assigned
     if (results.affectedRows === 0) {
@@ -139,5 +135,5 @@ module.exports = {
   assignTeamMemberController,
   getTeamMembersByClientIdController,
   getClientsForTeamMemberController,
-  unassignTeamMemberController
+  unassignTeamMemberController,
 };

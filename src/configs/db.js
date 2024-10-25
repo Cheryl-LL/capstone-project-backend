@@ -219,7 +219,6 @@ connection.query(createUserTableQuery, (err, results) => {
   const createWaitlistClientTableQuery = `
 CREATE TABLE IF NOT EXISTS waitlistClient (
   waitlistClientId INT AUTO_INCREMENT PRIMARY KEY,
-  clientId INT,
   datePlaced DATE NOT NULL,
   dateContact DATE NOT NULL,
   dateServiceOffered DATE,
@@ -254,7 +253,6 @@ CREATE TABLE IF NOT EXISTS waitlistClient (
   nextMeetingDate DATE,
   concerns TEXT,
   isArchived BOOLEAN NOT NULL,
-  FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
 );
 `;
 

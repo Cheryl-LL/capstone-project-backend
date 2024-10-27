@@ -7,14 +7,14 @@ const waitlistClientModel = {
       INSERT INTO waitlistClient (
         datePlaced, dateContact, dateServiceOffered, dateStartedService,
         community, fundingSources, serviceNeeded, consultHistory, dateConsultationBooked,
-        firstName, lastName, gender, birthDate, address, postalCode, phoneNumber, email,
+        firstName, lastName, gender, birthDate, address, postalCode, province, city, phoneNumber, email,
         diagnosis, school, age, fscdIdNum, caseWorkerName, serviceType,
         serviceProvidersNeeded, availability, locationOfService, feesDiscussed,
         followUp, referralFrom, previousService, paperworkDeadline, nextMeetingDate,
         concerns, isArchived
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-//35 fileds
+  
     const values = [
       data.datePlaced,
       data.dateContact,
@@ -31,6 +31,8 @@ const waitlistClientModel = {
       data.birthDate,
       data.address,
       data.postalCode,
+      data.province,
+      data.city,
       data.phoneNumber,
       data.email,
       data.diagnosis,
@@ -49,11 +51,12 @@ const waitlistClientModel = {
       data.paperworkDeadline,
       data.nextMeetingDate,
       data.concerns,
-      data.isArchived,
+      data.isArchived
     ];
-
+  
     connection.query(query, values, callback);
   },
+  
 
   getAllWaitlistClients: (callback) => {
     const query = 'SELECT * FROM waitlistClient';
@@ -68,10 +71,10 @@ const waitlistClientModel = {
   updateWaitlistClient: (id, data, callback) => {
     const query = `
       UPDATE waitlistClient SET
-        clientId = ?, datePlaced = ?, dateContact = ?, dateServiceOffered = ?, dateStartedService = ?,
+        datePlaced = ?, dateContact = ?, dateServiceOffered = ?, dateStartedService = ?,
         community = ?, fundingSources = ?, serviceNeeded = ?, consultHistory = ?, dateConsultationBooked = ?,
-        firstName = ?, lastName = ?, gender = ?, birthDate = ?, address = ?, postalCode = ?, phoneNumber = ?, email = ?,
-        diagnosis = ?, school = ?, age = ?, fscdIdNum = ?, caseWorkerName = ?, serviceType = ?,
+        firstName = ?, lastName = ?, gender = ?, birthDate = ?, address = ?, postalCode = ?, province = ?, city = ?,
+        phoneNumber = ?, email = ?, diagnosis = ?, school = ?, age = ?, fscdIdNum = ?, caseWorkerName = ?, serviceType = ?,
         serviceProvidersNeeded = ?, availability = ?, locationOfService = ?, feesDiscussed = ?,
         followUp = ?, referralFrom = ?, previousService = ?, paperworkDeadline = ?, nextMeetingDate = ?,
         concerns = ?, isArchived = ?
@@ -79,7 +82,6 @@ const waitlistClientModel = {
     `;
 
     const values = [
-      data.clientId,
       data.datePlaced,
       data.dateContact,
       data.dateServiceOffered,
@@ -95,6 +97,8 @@ const waitlistClientModel = {
       data.birthDate,
       data.address,
       data.postalCode,
+      data.province,
+      data.city,
       data.phoneNumber,
       data.email,
       data.diagnosis,
@@ -114,11 +118,12 @@ const waitlistClientModel = {
       data.nextMeetingDate,
       data.concerns,
       data.isArchived,
-      id,
+      id  // Added id at the end to match the WHERE clause
     ];
-
+  
     connection.query(query, values, callback);
   },
+  
 
   deleteWaitlistClient: (id, callback) => {
     const query = 'DELETE FROM waitlistClient WHERE waitlistClientId = ?';

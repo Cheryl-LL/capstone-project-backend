@@ -234,6 +234,8 @@ CREATE TABLE IF NOT EXISTS waitlistClient (
   birthDate DATE,
   address VARCHAR(100),
   postalCode VARCHAR(10),
+  province VARCHAR(50),
+  city VARCHAR(100),
   phoneNumber VARCHAR(20),
   email VARCHAR(100),
   diagnosis VARCHAR(255),
@@ -252,7 +254,7 @@ CREATE TABLE IF NOT EXISTS waitlistClient (
   paperworkDeadline DATE,
   nextMeetingDate DATE,
   concerns TEXT,
-  isArchived BOOLEAN NOT NULL,
+  isArchived BOOLEAN NOT NULL
 );
 `;
 

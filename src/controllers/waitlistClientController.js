@@ -42,6 +42,10 @@ const waitlistClientController = {
   updateWaitlistClient: (req, res) => {
     const id = req.params.id;
     const data = req.body;
+  
+    // Add console log to debug
+    console.log('Received id:', id);
+  
     waitlistClientModel.updateWaitlistClient(id, data, (err, results) => {
       if (err) {
         console.error('Error updating waitlist client:', err);

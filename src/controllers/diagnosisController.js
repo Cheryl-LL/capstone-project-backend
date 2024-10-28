@@ -11,11 +11,15 @@ const { getTeamMembersByClientId } = require("../models/teamMemberModel");
 // Controller to create a new diagnosis
 const createDiagnosisController = (req, res) => {
   const { diagnosis, aType, clientId } = req.body;
+  console.log(diagnosis, aType, clientId)
+  console.log(typeof diagnosis, typeof aType, typeof clientId);
+  console.log("Request Body:", req.body);
 
   // Validate required fields
-  if (!diagnosis || !aType || !clientId) {
-    return res.status(400).json({ message: "Missing required fields" });
-  }
+  // if (!diagnosis || !aType || !clientId) {
+  //   console.log(diagnosis, aType, clientId);
+  //   return res.status(400).json({ message: "Missing required fields" });
+  // }
 
   createDiagnosis(diagnosis, aType, clientId, (err, result) => {
     if (err) {

@@ -1,4 +1,5 @@
 const mysql = require("mysql2");
+const fs = require("fs"); 
 
 // Create a connection to the database
 const connection = mysql.createPool({
@@ -9,6 +10,10 @@ const connection = mysql.createPool({
   waitForConnections: true, // Wait for connections when pool is full
   connectionLimit: 10, // Maximum number of connections in the pool
   queueLimit: 0,
+  ssl: {
+    minVersion: 'TLSv1.2', 
+    rejectUnauthorized: true 
+  },
 });
 
 const createUserTableQuery = `

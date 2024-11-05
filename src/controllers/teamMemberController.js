@@ -4,6 +4,7 @@ const {
   getClientsForTeamMember,
   checkTeamMemberbyClient,
   unassignTeamMember,
+  updateTeamMemberDates,
 } = require("../models/teamMemberModel");
 const { getUserById } = require("../models/userModel");
 
@@ -130,10 +131,23 @@ const unassignTeamMemberController = async (req, res) => {
   }
 };
 
+const updateTeamMemberController = (req, res) => {
+  const teamMemberId = req.params.teamMemberId;
+  const { startServiceDate, endServiceDate } = req.body;
+
+  updateTeamMemberDates(teamMemberId, startServiceDate, endServiceDate, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to update team member dates' });
+    }
+    res.status(200).json({ message: 'Team member dates updated successfully' });
+  });
+};
+
 // Export the controller functions
 module.exports = {
   assignTeamMemberController,
   getTeamMembersByClientIdController,
   getClientsForTeamMemberController,
   unassignTeamMemberController,
+  updateTeamMemberController,
 };

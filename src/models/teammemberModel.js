@@ -32,6 +32,7 @@ const getTeamMembersByClientId = (clientId) => {
   return new Promise((resolve, reject) => {
     const query = `
       SELECT 
+        tm.teamMemberId,
         ec.clientId, ec.psNote, ec.firstName, ec.lastName, ec.gender, ec.birthDate, ec.address, ec.city, ec.postalCode, 
         ec.phoneNumber, ec.email, ec.school, ec.age, ec.currentStatus, ec.fscdIdNum, tm.startServiceDate, tm.endServiceDate, 
         u.userId, u.firstName AS userFirstName, u.lastName AS userLastName, u.role, u.rate
@@ -48,6 +49,21 @@ const getTeamMembersByClientId = (clientId) => {
       }
       resolve(results);
     });
+  });
+};
+
+// Function to update team member dates
+const updateTeamMemberDates = (teamMemberId, startServiceDate, endServiceDate, callback) => {
+  const query = `
+    UPDATE TeamMember SET startServiceDate = ?, endServiceDate = ?
+    WHERE teamMemberId = ?
+  `;
+  connection.query(query, [startServiceDate, endServiceDate, teamMemberId], (err, results) => {
+    if (err) {
+      console.error('Error updating team member dates:', err);
+      return callback(err);
+    }
+    return callback(null, results);
   });
 };
 
@@ -108,4 +124,5 @@ module.exports = {
   getClientsForTeamMember,
   checkTeamMemberbyClient,
   unassignTeamMember,
+  updateTeamMemberDates,
 };

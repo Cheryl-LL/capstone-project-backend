@@ -123,14 +123,53 @@ const updateUserById = async (userId, user, isAdminUpdate) => {
       values.push(user.province);
     }
 
-    if (user.isAdmin !== undefined && isAdminUpdate) {
-      fields.push("isAdmin = ?");
-      values.push(user.isAdmin ? 1 : 0);
+    if (user.beneficiary && isAdminUpdate) {
+      fields.push("beneficiary = ?");
+      values.push(user.beneficiary === "None" ? null : user.beneficiary);
+    }
+    if (user.licencingCollege && isAdminUpdate) {
+      fields.push("licencingCollege = ?");
+      values.push(user.licencingCollege);
+    }
+
+    if (user.registrationNumber && isAdminUpdate) {
+      fields.push("registrationNumber = ?");
+      values.push(user.registrationNumber);
+    }
+
+    if (user.contractStartDate && isAdminUpdate) {
+      fields.push("contractStartDate = ?");
+      values.push(user.contractStartDate.split("T")[0]); // Format date
+    }
+
+    if (user.contractEndDate && isAdminUpdate) {
+      fields.push("contractEndDate = ?");
+      values.push(user.contractEndDate.split("T")[0]); // Format date
+    }
+
+    if (user.agency && isAdminUpdate) {
+      fields.push("agency = ?");
+      values.push(user.agency);
+    }
+
+    if (user.rate && isAdminUpdate) {
+      fields.push("rate = ?");
+      values.push(Number(user.rate)); // Ensure it’s a number
+    }
+
+    if (user.SIN && isAdminUpdate) {
+      fields.push("SIN = ?");
+      values.push(user.SIN);
     }
 
     if (user.role && isAdminUpdate) {
       fields.push("role = ?");
       values.push(user.role);
+    }
+
+    if (user.isAdmin !== undefined && isAdminUpdate) {
+      fields.push("isAdmin = ?");
+      values.push(user.isAdmin ? 1 : 0);
     }
 
     // If no fields to update, throw an error
@@ -145,6 +184,8 @@ const updateUserById = async (userId, user, isAdminUpdate) => {
     // Return a promise to resolve or reject the database query
     return new Promise((resolve, reject) => {
       connection.query(query, values, (err, results) => {
+        console.error("Error executing query:", query);
+        console.error("With values:", values);
         if (err) return reject(err);
         resolve(results);
       });

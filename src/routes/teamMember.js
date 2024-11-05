@@ -4,6 +4,7 @@ const {
   getTeamMembersByClientIdController,
   getClientsForTeamMemberController,
   unassignTeamMemberController,
+  updateTeamMemberController,
 } = require("../controllers/teamMemberController");
 const {
   authenticateToken,
@@ -25,6 +26,13 @@ router.get(
   "/client/:clientId",
   authenticateToken,
   getTeamMembersByClientIdController
+);
+
+router.put(
+  '/:teamMemberId',
+  authenticateToken,
+  authorizeAdmin,
+  updateTeamMemberController
 );
 
 // Route to get the assigned clients of the team member

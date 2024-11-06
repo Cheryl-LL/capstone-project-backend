@@ -28,6 +28,7 @@ var consentRouter = require("./src/routes/consent");
 var diagnosisRouter = require("./src/routes/diagnosis");
 var insuranceInfoRouter = require("./src/routes/insuranceInfo");
 var clientContractRouter = require("./src/routes/clientContract");
+var outsideProviderRouter = require("./src/routes/outsideProvider");
 
 var app = express();
 
@@ -90,6 +91,7 @@ app.use("/consents", consentRouter);
 app.use("/diagnosis", diagnosisRouter);
 app.use("/insurance-info", insuranceInfoRouter);
 app.use("/client-contract", clientContractRouter);
+app.use("/outside-provider", outsideProviderRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

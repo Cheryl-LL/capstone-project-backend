@@ -1,7 +1,7 @@
 const mysql = require("mysql2");
-// const fs = require("fs");
+const fs = require("fs");
 
-// const requireSSL = process.env.REQUIRE_SSL === "true";
+const requireSSL = process.env.REQUIRE_SSL === "true";
 
 // Create a connection to the database
 const connection = mysql.createPool({
@@ -9,16 +9,16 @@ const connection = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  // waitForConnections: true, // Wait for connections when pool is full
-  // connectionLimit: 10, // Maximum number of connections in the pool
-  // queueLimit: 0,
-  // ssl: requireSSL
-  //   ? {
-  //       ca: fs.readFileSync("certs/BaltimoreCyberTrustRoot.crt"),
-  //       minVersion: 'TLSv1.2',
-  //       rejectUnauthorized: true
-  //     }
-  //   : false,
+  waitForConnections: true, // Wait for connections when pool is full
+  connectionLimit: 10, // Maximum number of connections in the pool
+  queueLimit: 0,
+  ssl: requireSSL
+    ? {
+        ca: fs.readFileSync("certs/BaltimoreCyberTrustRoot.crt"),
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: true
+      }
+    : false,
 });
 
 const createUserTableQuery = `
@@ -304,6 +304,25 @@ CREATE TABLE IF NOT EXISTS PrimaryGuardian (
     }
     console.log("PrimaryGuardian table is created.");
   });
+
+  const createOutsideProviderTableQuery = `
+  CREATE TABLE IF NOT EXISTS OutsideProvider (
+    outsideProviderId INT AUTO_INCREMENT PRIMARY KEY,
+    firstName VARCHAR(50) NOT NULL,
+    lastName VARCHAR(50) NOT NULL,
+    phoneNumber VARCHAR(20),
+    email VARCHAR(100),
+    agency VARCHAR(50)
+  );
+  `;
+  
+    connection.query(createOutsideProviderTableQuery, (err, results) => {
+      if (err) {
+        console.error("Error creating OutsideProvider table:", err);
+        return;
+      }
+      console.log("OutsideProvider table is created.");
+    });
 });
 
 // function executeQuery(query, tableName) {

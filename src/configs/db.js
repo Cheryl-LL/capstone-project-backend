@@ -301,6 +301,25 @@ CREATE TABLE IF NOT EXISTS PrimaryGuardian (
     }
     console.log("PrimaryGuardian table is created.");
   });
+
+  const createOutsideProviderTableQuery = `
+  CREATE TABLE IF NOT EXISTS OutsideProvider (
+    outsideProviderId INT AUTO_INCREMENT PRIMARY KEY,
+    firstName VARCHAR(50) NOT NULL,
+    lastName VARCHAR(50) NOT NULL,
+    phoneNumber VARCHAR(20),
+    email VARCHAR(100),
+    agency VARCHAR(50)
+  );
+  `;
+  
+    connection.query(createOutsideProviderTableQuery, (err, results) => {
+      if (err) {
+        console.error("Error creating OutsideProvider table:", err);
+        return;
+      }
+      console.log("OutsideProvider table is created.");
+    });
 });
 
 // function executeQuery(query, tableName) {

@@ -15,8 +15,8 @@ const connection = mysql.createPool({
   ssl: requireSSL
     ? {
         ca: fs.readFileSync("certs/BaltimoreCyberTrustRoot.crt"),
-        minVersion: 'TLSv1.2',
-        rejectUnauthorized: true
+        minVersion: "TLSv1.2",
+        rejectUnauthorized: true,
       }
     : false,
 });
@@ -312,14 +312,34 @@ CREATE TABLE IF NOT EXISTS PrimaryGuardian (
     agency VARCHAR(50)
   );
   `;
-  
-    connection.query(createOutsideProviderTableQuery, (err, results) => {
-      if (err) {
-        console.error("Error creating OutsideProvider table:", err);
-        return;
-      }
-      console.log("OutsideProvider table is created.");
-    });
+
+  connection.query(createOutsideProviderTableQuery, (err, results) => {
+    if (err) {
+      console.error("Error creating OutsideProvider table:", err);
+      return;
+    }
+    console.log("OutsideProvider table is created.");
+  });
+
+  const createStaffContractTableQuery = `
+CREATE TABLE IF NOT EXISTS staffContract (
+    contractId INT AUTO_INCREMENT PRIMARY KEY,
+    userId INT NOT NULL,
+    fileId INT NOT NULL,
+    startDate DATE NOT NULL,
+    endDate DATE NOT NULL,
+    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (fileId) REFERENCES Files(fileId) ON DELETE CASCADE
+);
+    `;
+
+  connection.query(createStaffContractTableQuery, (err, results) => {
+    if (err) {
+      console.error("Error creating Staff Contract table:", err);
+      return;
+    }
+    console.log("Staff contract table is created.");
+  });
 });
 
 // function executeQuery(query, tableName) {

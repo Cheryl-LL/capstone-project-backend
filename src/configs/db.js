@@ -229,13 +229,13 @@ connection.query(createUserTableQuery, (err, results) => {
   const createWaitlistClientTableQuery = `
 CREATE TABLE IF NOT EXISTS waitlistClient (
   waitlistClientId INT AUTO_INCREMENT PRIMARY KEY,
-  datePlaced DATE NOT NULL,
+  datePlaced DATE NOT NULL, 
   dateContact DATE NOT NULL,
   dateServiceOffered DATE,
   dateStartedService DATE,
   community VARCHAR(100),
   fundingSources VARCHAR(255),
-  serviceNeeded VARCHAR(255),
+  serviceProvidersNeeded VARCHAR(255),
   consultHistory TEXT,
   dateConsultationBooked DATE,
   firstName VARCHAR(50) NOT NULL,
@@ -250,20 +250,23 @@ CREATE TABLE IF NOT EXISTS waitlistClient (
   email VARCHAR(100),
   diagnosis VARCHAR(255),
   school VARCHAR(100),
-  age INT,
-  fscdIdNum VARCHAR(50),
+  fscdIdNum VARCHAR(50), 
   caseWorkerName VARCHAR(50),
   serviceType VARCHAR(100),
-  serviceProvidersNeeded VARCHAR(255),
   availability VARCHAR(255),
   locationOfService VARCHAR(100),
-  feesDiscussed VARCHAR(255),
+  feeDiscussed BOOLEAN,
   followUp VARCHAR(255),
   referralFrom VARCHAR(255),
   previousService VARCHAR(255),
   paperworkDeadline DATE,
   nextMeetingDate DATE,
   concerns TEXT,
+  pets VARCHAR(255),
+  parentName VARCHAR(100), -- Added missing field
+  language VARCHAR(50), -- Added missing field
+  siblings VARCHAR(255), -- Added missing field
+  hasConverted BOOLEAN NOT NULL, -- Added missing field
   isArchived BOOLEAN NOT NULL
 );
 `;

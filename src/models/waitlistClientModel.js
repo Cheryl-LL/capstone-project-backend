@@ -6,15 +6,15 @@ const waitlistClientModel = {
     const query = `
       INSERT INTO waitlistClient (
         datePlaced, dateContact, dateServiceOffered, dateStartedService,
-        community, fundingSources, serviceNeeded, consultHistory, dateConsultationBooked,
+        community, fundingSources, serviceProvidersNeeded, consultHistory, dateConsultationBooked,
         firstName, lastName, gender, birthDate, address, postalCode, province, city, phoneNumber, email,
-        diagnosis, school, age, fscdIdNum, caseWorkerName, serviceType,
-        serviceProvidersNeeded, availability, locationOfService, feesDiscussed,
+        diagnosis, school, fscdIdNum, caseWorkerName, serviceType,
+        availability, locationOfService, feeDiscussed,
         followUp, referralFrom, previousService, paperworkDeadline, nextMeetingDate,
-        concerns, isArchived
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        concerns, pets, parentName, language, siblings, hasConverted, isArchived
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-  
+
     const values = [
       data.datePlaced,
       data.dateContact,
@@ -22,8 +22,8 @@ const waitlistClientModel = {
       data.dateStartedService,
       data.community,
       data.fundingSources,
-      data.serviceNeeded,
-      data.consultHistory,
+      data.serviceProvidersNeeded,
+      data.consultationHistory, // Changed from data.consultHistory
       data.dateConsultationBooked,
       data.firstName,
       data.lastName,
@@ -37,26 +37,28 @@ const waitlistClientModel = {
       data.email,
       data.diagnosis,
       data.school,
-      data.age,
       data.fscdIdNum,
       data.caseWorkerName,
       data.serviceType,
-      data.serviceProvidersNeeded,
       data.availability,
       data.locationOfService,
-      data.feesDiscussed,
+      data.feeDiscussed, // Corrected from data.feesDiscussed
       data.followUp,
       data.referralFrom,
       data.previousService,
       data.paperworkDeadline,
       data.nextMeetingDate,
       data.concerns,
+      data.pets, // Added
+      data.parentName, // Added
+      data.language, // Added
+      data.siblings, // Added
+      data.hasConverted, // Added
       data.isArchived
     ];
-  
+
     connection.query(query, values, callback);
   },
-  
 
   getAllWaitlistClients: (callback) => {
     const query = 'SELECT * FROM waitlistClient';
@@ -72,12 +74,12 @@ const waitlistClientModel = {
     const query = `
       UPDATE waitlistClient SET
         datePlaced = ?, dateContact = ?, dateServiceOffered = ?, dateStartedService = ?,
-        community = ?, fundingSources = ?, serviceNeeded = ?, consultHistory = ?, dateConsultationBooked = ?,
+        community = ?, fundingSources = ?, serviceProvidersNeeded = ?, consultHistory = ?, dateConsultationBooked = ?,
         firstName = ?, lastName = ?, gender = ?, birthDate = ?, address = ?, postalCode = ?, province = ?, city = ?,
-        phoneNumber = ?, email = ?, diagnosis = ?, school = ?, age = ?, fscdIdNum = ?, caseWorkerName = ?, serviceType = ?,
-        serviceProvidersNeeded = ?, availability = ?, locationOfService = ?, feesDiscussed = ?,
+        phoneNumber = ?, email = ?, diagnosis = ?, school = ?, fscdIdNum = ?, caseWorkerName = ?, serviceType = ?,
+        availability = ?, locationOfService = ?, feeDiscussed = ?,
         followUp = ?, referralFrom = ?, previousService = ?, paperworkDeadline = ?, nextMeetingDate = ?,
-        concerns = ?, isArchived = ?
+        concerns = ?, pets = ?, parentName = ?, language = ?, siblings = ?, hasConverted = ?, isArchived = ?
       WHERE waitlistClientId = ?
     `;
 
@@ -88,8 +90,8 @@ const waitlistClientModel = {
       data.dateStartedService,
       data.community,
       data.fundingSources,
-      data.serviceNeeded,
-      data.consultHistory,
+      data.serviceProvidersNeeded,
+      data.consultationHistory, // Changed from data.consultHistory
       data.dateConsultationBooked,
       data.firstName,
       data.lastName,
@@ -103,27 +105,29 @@ const waitlistClientModel = {
       data.email,
       data.diagnosis,
       data.school,
-      data.age,
       data.fscdIdNum,
       data.caseWorkerName,
       data.serviceType,
-      data.serviceProvidersNeeded,
       data.availability,
       data.locationOfService,
-      data.feesDiscussed,
+      data.feeDiscussed, // Corrected from data.feesDiscussed
       data.followUp,
       data.referralFrom,
       data.previousService,
       data.paperworkDeadline,
       data.nextMeetingDate,
       data.concerns,
+      data.pets, // Added
+      data.parentName, // Added
+      data.language, // Added
+      data.siblings, // Added
+      data.hasConverted, // Added
       data.isArchived,
-      id  // Added id at the end to match the WHERE clause
+      id // Added id at the end to match the WHERE clause
     ];
-  
+
     connection.query(query, values, callback);
   },
-  
 
   deleteWaitlistClient: (id, callback) => {
     const query = 'DELETE FROM waitlistClient WHERE waitlistClientId = ?';

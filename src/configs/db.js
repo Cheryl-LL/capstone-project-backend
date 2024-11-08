@@ -255,7 +255,7 @@ CREATE TABLE IF NOT EXISTS waitlistClient (
   serviceType VARCHAR(100),
   availability VARCHAR(255),
   locationOfService VARCHAR(100),
-  feeDiscussed VARCHAR(255),
+  feeDiscussed BOOLEAN,
   followUp VARCHAR(255),
   referralFrom VARCHAR(255),
   previousService VARCHAR(255),

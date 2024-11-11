@@ -119,11 +119,13 @@ connection.query(createUserTableQuery, (err, results) => {
       CREATE TABLE IF NOT EXISTS TeamMember (
         teamMemberId INT AUTO_INCREMENT PRIMARY KEY,
         clientId INT NOT NULL,
-        userId INT NOT NULL,
+        userId INT,
+        outsideProviderId INT,
         startServiceDate DATE,
         endServiceDate DATE,
         FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
-        FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+        FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE,
+        FOREIGN KEY (outsideProviderId) REFERENCES OutsideProvider(outsideProviderId) ON DELETE CASCADE
       );
     `;
 

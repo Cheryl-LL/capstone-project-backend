@@ -43,7 +43,7 @@ router.get(
 );
 
 router.delete(
-  "/client/:clientId/user/:userId",
+  "/client/:clientId/team-member/:teamMemberId",
   authenticateToken,
   authorizeAdmin,
   unassignTeamMemberController

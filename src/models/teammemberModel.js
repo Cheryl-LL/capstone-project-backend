@@ -1,33 +1,33 @@
 const connection = require("../configs/db");
 
-// Function to assign a team member to a client (insert into TeamMember table)
-const assignTeamMember = (
-  clientId,
-  userId,
-  startServiceDate,
-  endServiceDate,
-  callback
-) => {
-  const query = `
-    INSERT INTO TeamMember (clientId, userId, startServiceDate, endServiceDate)
-    VALUES (?, ?, ?, ?)
-  `;
+// Function to assign a team member (user or outside provider) to a client
+const assignTeamMember = (clientId, userId, outsideProviderId, startServiceDate, endServiceDate) => {
+  return new Promise((resolve, reject) => {
+    // Set up the query and parameters based on whether userId or outsideProviderId is provided
+    const query = `
+      INSERT INTO TeamMember (clientId, userId, outsideProviderId, startServiceDate, endServiceDate)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+    const params = [
+      clientId,
+      userId || null,
+      outsideProviderId || null,
+      startServiceDate,
+      endServiceDate || null,
+    ];
 
-  // Check if endServiceDate is provided, if not, pass null
-  connection.query(
-    query,
-    [clientId, userId, startServiceDate, endServiceDate || null],
-    (err, results) => {
+    connection.query(query, params, (err, results) => {
       if (err) {
         console.error("Error assigning team member:", err);
-        return callback(err);
+        return reject(err);
       }
-      return callback(null, results);
-    }
-  );
+      resolve(results);
+    });
+  });
 };
 
-// Function to get all team members for a specific client
+
+// Function to get all team members (users and outside providers) for a specific client
 const getTeamMembersByClientId = (clientId) => {
   return new Promise((resolve, reject) => {
     const query = `
@@ -35,10 +35,13 @@ const getTeamMembersByClientId = (clientId) => {
         tm.teamMemberId,
         ec.clientId, ec.psNote, ec.firstName, ec.lastName, ec.gender, ec.birthDate, ec.address, ec.city, ec.postalCode, 
         ec.phoneNumber, ec.email, ec.school, ec.age, ec.currentStatus, ec.fscdIdNum, tm.startServiceDate, tm.endServiceDate, 
-        u.userId, u.firstName AS userFirstName, u.lastName AS userLastName, u.role, u.rate
+        u.userId, u.firstName AS userFirstName, u.lastName AS userLastName, u.role, u.rate,
+        op.outsideProviderId, op.firstName AS outsideProviderFirstName, op.lastName AS outsideProviderLastName, 
+        op.phoneNumber AS outsideProviderPhone, op.email AS outsideProviderEmail, op.agency AS outsideProviderAgency
       FROM ExistingClient ec
       JOIN TeamMember tm ON ec.clientId = tm.clientId
-      JOIN users u ON tm.userId = u.userId
+      LEFT JOIN users u ON tm.userId = u.userId
+      LEFT JOIN OutsideProvider op ON tm.outsideProviderId = op.outsideProviderId
       WHERE ec.clientId = ?
     `;
 
@@ -53,30 +56,33 @@ const getTeamMembersByClientId = (clientId) => {
 };
 
 // Function to update team member dates
-const updateTeamMemberDates = (teamMemberId, startServiceDate, endServiceDate, callback) => {
-  const query = `
-    UPDATE TeamMember SET startServiceDate = ?, endServiceDate = ?
-    WHERE teamMemberId = ?
-  `;
-  connection.query(query, [startServiceDate, endServiceDate, teamMemberId], (err, results) => {
-    if (err) {
-      console.error('Error updating team member dates:', err);
-      return callback(err);
-    }
-    return callback(null, results);
+const updateTeamMemberDates = (teamMemberId, startServiceDate, endServiceDate) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      UPDATE TeamMember SET startServiceDate = ?, endServiceDate = ?
+      WHERE teamMemberId = ?
+    `;
+    connection.query(query, [startServiceDate, endServiceDate, teamMemberId], (err, results) => {
+      if (err) {
+        console.error("Error updating team member dates:", err);
+        return reject(err);
+      }
+      resolve(results);
+    });
   });
 };
 
-// Function to get all clients for a teammember
+
+// Function to get all clients for a team member
 const getClientsForTeamMember = (teamMemberId) => {
   return new Promise((resolve, reject) => {
     const query = `
       SELECT ec.*
       FROM ExistingClient ec
       JOIN TeamMember tm ON ec.clientId = tm.clientId
-      WHERE tm.userId = ?
+      WHERE tm.userId = ? OR tm.outsideProviderId = ?
     `;
-    connection.query(query, [teamMemberId], (err, results) => {
+    connection.query(query, [teamMemberId, teamMemberId], (err, results) => {
       if (err) {
         return reject(err);
       }
@@ -85,32 +91,42 @@ const getClientsForTeamMember = (teamMemberId) => {
   });
 };
 
-const checkTeamMemberbyClient = (clientId, userId, callback) => {
-  const query = `
-
-    SELECT * FROM TeamMember WHERE clientId = ? AND userId = ?;
-  `;
-  connection.query(query, [clientId, userId], (err, results) => {
-    if (err) {
-      console.error("Error checking team member assignment:", err);
-      return callback(err);
-    }
-
-    return callback(null, results);
+// Function to unassign a team member
+const unassignTeamMember = (clientId, teamMemberId, isOutsideProvider = false) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      DELETE FROM TeamMember WHERE clientId = ? AND teamMemberId = ?
+    `;
+    connection.query(query, [clientId, teamMemberId], (err, results) => {
+      if (err) {
+        console.error("Database error while unassigning team member:", err);
+        return reject(err);
+      }
+      resolve(results);
+    });
   });
 };
 
-// Function to unassign a teammember
-const unassignTeamMember = (clientId, userId) => {
-  console.log("delete starts");
-  return new Promise((resolve, reject) => {
-    const query = `
-      DELETE FROM TeamMember WHERE clientId = ? AND userId = ?
-    `;
 
-    connection.query(query, [clientId, userId], (err, results) => {
+const checkTeamMemberByClient = (clientId, userId, outsideProviderId) => {
+  return new Promise((resolve, reject) => {
+    let query;
+    let params = [clientId];
+
+    if (userId) {
+      query = `SELECT * FROM TeamMember WHERE clientId = ? AND userId = ?`;
+      params.push(userId);
+    } else if (outsideProviderId) {
+      query = `SELECT * FROM TeamMember WHERE clientId = ? AND outsideProviderId = ?`;
+      params.push(outsideProviderId);
+    } else {
+      return reject(
+        new Error("Either userId or outsideProviderId must be provided")
+      );
+    }
+
+    connection.query(query, params, (err, results) => {
       if (err) {
-        console.error("Database error while unassigning team member:", err);
         return reject(err);
       }
       resolve(results);
@@ -122,7 +138,7 @@ module.exports = {
   assignTeamMember,
   getTeamMembersByClientId,
   getClientsForTeamMember,
-  checkTeamMemberbyClient,
   unassignTeamMember,
   updateTeamMemberDates,
+  checkTeamMemberByClient,
 };

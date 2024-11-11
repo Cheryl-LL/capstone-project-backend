@@ -1,55 +1,76 @@
+const { getOutsideProviderById } = require("../models/outsideProviderModel");
 const {
   assignTeamMember,
   getTeamMembersByClientId,
   getClientsForTeamMember,
-  checkTeamMemberbyClient,
   unassignTeamMember,
   updateTeamMemberDates,
+  checkTeamMemberByClient,
 } = require("../models/teamMemberModel");
 const { getUserById } = require("../models/userModel");
 
-// Controller to assign a team member to a client
-const assignTeamMemberController = (req, res) => {
-  const { clientId, userId, startServiceDate, endServiceDate } = req.body;
+// Controller to assign a team member (user or outside provider) to a client
+const assignTeamMemberController = async (req, res) => {
+  const {
+    clientId,
+    userId,
+    outsideProviderId,
+    startServiceDate,
+    endServiceDate,
+  } = req.body;
 
   // Validate required fields
-  if (!clientId || !userId) {
+  if (!clientId || (!userId && !outsideProviderId)) {
     return res.status(400).json({ message: "Missing required fields" });
   }
+  if (userId && outsideProviderId) {
+    return res.status(400).json({
+      message: "Specify either userId or outsideProviderId, not both",
+    });
+  }
 
-  checkTeamMemberbyClient(clientId, userId, (err, results) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ message: "Error checking existing assignment", error: err });
+  try {
+    if (userId) {
+      const userExists = await getUserById(userId);
+      if (!userExists) {
+        return res.status(404).json({ message: "User not found" });
+      }
+    } else if (outsideProviderId) {
+      const providerExists = await getOutsideProviderById(outsideProviderId);
+      if (!providerExists) {
+        return res.status(404).json({ message: "Outside provider not found" });
+      }
     }
 
-    // If a result is found, it means the assignment already exists
-    if (results.length > 0) {
+    // Check if the team member is already assigned to the client
+    const existingAssignment = await checkTeamMemberByClient(
+      clientId,
+      userId,
+      outsideProviderId
+    );
+
+    if (existingAssignment.length > 0) {
       return res
         .status(400)
         .json({ message: "Team member is already assigned to this client." });
     }
 
-    // If no result is found, proceed with the assignment
-    assignTeamMember(
+    // If no existing assignment, proceed with the assignment
+    const result = await assignTeamMember(
       clientId,
       userId,
+      outsideProviderId,
       startServiceDate,
-      endServiceDate,
-      (err, results) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ message: "Error assigning team member", error: err });
-        }
-        res.status(201).json({
-          message: "Team member assigned successfully",
-          teamMemberId: results.insertId,
-        });
-      }
+      endServiceDate
     );
-  });
+
+    res.status(201).json({
+      message: "Team member assigned successfully",
+      teamMemberId: result.insertId,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Error processing request", error: err });
+  }
 };
 
 // Controller to get all team members for a specific client
@@ -61,7 +82,6 @@ const getTeamMembersByClientIdController = async (req, res) => {
   }
 
   try {
-    // Fetch team members using the Promise-based function
     const results = await getTeamMembersByClientId(clientId);
     return res.status(200).json(results);
   } catch (err) {
@@ -71,29 +91,12 @@ const getTeamMembersByClientIdController = async (req, res) => {
   }
 };
 
+// Controller to get all clients for a specific team member (user or outside provider)
 const getClientsForTeamMemberController = async (req, res) => {
-  const userId = req.params.userId;
-  const loggedInUserId = req.user.id;
-  const isAdmin = req.user.isAdmin;
+  const { teamMemberId } = req.params;
 
   try {
-    // Check if the team member ID matches the logged-in user's ID if not admin
-    if (!isAdmin) {
-      const teamMember = await getUserById(userId);
-      console.log(teamMember);
-      if (!teamMember) {
-        return res.status(404).json({ message: "Team member not found" });
-      }
-
-      // Verify that the logged-in user is the same as the user associated with the team member
-      if (String(userId) !== String(loggedInUserId)) {
-        return res
-          .status(403)
-          .send({ message: "You are not authorized to update this profile." });
-      }
-    }
-    // Fetch all clients for the team member
-    const clients = await getClientsForTeamMember(userId);
+    const clients = await getClientsForTeamMember(teamMemberId);
     return res.status(200).json({ data: clients });
   } catch (err) {
     console.error("Error fetching clients for team member:", err);
@@ -103,45 +106,53 @@ const getClientsForTeamMemberController = async (req, res) => {
   }
 };
 
+// Controller to unassign a team member (user or outside provider) from a client
 const unassignTeamMemberController = async (req, res) => {
-  const { clientId, userId } = req.params;
+  const { clientId, teamMemberId } = req.params;
+  const isOutsideProvider = req.query.type === "provider";
+  
+  console.log("Client ID:", clientId);
+  console.log("Team Member ID:", teamMemberId);
+  console.log("Is Outside Provider:", isOutsideProvider);
 
-  // Validate required fields
-  if (!clientId || !userId) {
+  if (!clientId || !teamMemberId) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
   try {
-    const results = await unassignTeamMember(clientId, userId);
-
-    // If no rows were affected, it means the team member was not assigned
+    // Call unassignTeamMember with the correct provider flag
+    const results = await unassignTeamMember(clientId, teamMemberId, isOutsideProvider);
+    
     if (results.affectedRows === 0) {
-      return res
-        .status(404)
-        .json({ message: "Team member assignment not found" });
+      return res.status(404).json({ message: "Team member assignment not found" });
     }
 
-    return res
-      .status(200)
-      .json({ message: "Team member unassigned successfully" });
+    return res.status(200).json({ message: "Team member unassigned successfully" });
   } catch (err) {
-    return res
-      .status(500)
-      .json({ message: "Error unassigning team member", error: err });
+    return res.status(500).json({ message: "Error unassigning team member", error: err });
   }
 };
 
-const updateTeamMemberController = (req, res) => {
+
+// Controller to update team member dates
+const updateTeamMemberController = async (req, res) => {
   const teamMemberId = req.params.teamMemberId;
   const { startServiceDate, endServiceDate } = req.body;
 
-  updateTeamMemberDates(teamMemberId, startServiceDate, endServiceDate, (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to update team member dates' });
+  try {
+    const results = await updateTeamMemberDates(teamMemberId, startServiceDate, endServiceDate);
+    
+    // Check if any rows were affected, meaning the update was successful
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: "Team member not found" });
     }
-    res.status(200).json({ message: 'Team member dates updated successfully' });
-  });
+
+    res.status(200).json({ message: "Team member dates updated successfully" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update team member dates", details: err });
+  }
 };
+
 
 // Export the controller functions
 module.exports = {

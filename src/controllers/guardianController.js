@@ -23,7 +23,7 @@ const getPrimaryGuardianController = (req, res) => {
     if (err) {
       return res.status(500).send(err);
     }
-    res.send(results[0]);
+    res.send(results);
   });
 };
 

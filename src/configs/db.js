@@ -60,7 +60,7 @@ connection.query(createUserTableQuery, (err, results) => {
   const createExistingClientTableQuery = `
     CREATE TABLE IF NOT EXISTS ExistingClient (
       clientId INT AUTO_INCREMENT PRIMARY KEY,
-      psNote VARCHAR(200),
+      psNote TEXT,
       firstName VARCHAR(50) NOT NULL,
       lastName VARCHAR(50) NOT NULL,
       gender VARCHAR(20) NOT NULL,

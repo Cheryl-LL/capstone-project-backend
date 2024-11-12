@@ -39,7 +39,6 @@ const getConsentByIdController = async (req, res) => {
   const { consentId } = req.params;
   const loggedInUserId = req.user.id;
   const isAdmin = req.user.isAdmin;
-  console.log(consentId, loggedInUserId, isAdmin);
 
   if (!consentId) {
     return res.status(400).json({ message: "Consent ID is required" });

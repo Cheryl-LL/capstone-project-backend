@@ -76,20 +76,44 @@ const assignTeamMemberController = async (req, res) => {
 // Controller to get all team members for a specific client
 const getTeamMembersByClientIdController = async (req, res) => {
   const { clientId } = req.params;
+  const loggedInUserId = req.user.id;
+  const isAdmin = req.user.isAdmin;
 
   if (!clientId) {
     return res.status(400).json({ message: "Client ID is required" });
   }
 
   try {
+    // Check if the user is an admin
+    if (!isAdmin) {
+      // If not an admin, check if the user is part of the team for this client
+      const teamMembers = await getTeamMembersByClientId(clientId);
+
+      const isTeamMember = teamMembers.some(
+        (member) => String(member.userId) === String(loggedInUserId)
+      );
+
+      if (!isTeamMember) {
+        return res.status(403).json({
+          message: "You are not authorized to view team members for this client.",
+        });
+      }
+
+      // Return only the team member details if the user is a team member
+      return res.status(200).json(teamMembers);
+    }
+
+    // If the user is an admin, fetch and return all team members for the client
     const results = await getTeamMembersByClientId(clientId);
     return res.status(200).json(results);
   } catch (err) {
+    console.error("Error fetching team members:", err);
     return res
       .status(500)
       .json({ message: "Error fetching team members", error: err });
   }
 };
+
 
 // Controller to get all clients for a specific team member (user or outside provider)
 const getClientsForTeamMemberController = async (req, res) => {
@@ -110,10 +134,6 @@ const getClientsForTeamMemberController = async (req, res) => {
 const unassignTeamMemberController = async (req, res) => {
   const { clientId, teamMemberId } = req.params;
   const isOutsideProvider = req.query.type === "provider";
-  
-  console.log("Client ID:", clientId);
-  console.log("Team Member ID:", teamMemberId);
-  console.log("Is Outside Provider:", isOutsideProvider);
 
   if (!clientId || !teamMemberId) {
     return res.status(400).json({ message: "Missing required fields" });

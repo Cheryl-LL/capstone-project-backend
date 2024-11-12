@@ -19,7 +19,7 @@ router.get("/", authenticateToken, authorizeAdmin, getAllPatientsController);
 // Only admins can create patients
 router.post("/", authenticateToken, authorizeAdmin, createPatientController);
 
-// All users can view patients
+// Users that are team member can view a patient by id
 router.get("/:clientId", authenticateToken, getPatientController);
 
 // Only admins can update patients

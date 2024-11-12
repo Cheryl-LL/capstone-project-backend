@@ -27,15 +27,13 @@ router.delete(
   deleteFileController
 );
 router.get(
-  "/patient/:clientId",
+  "/client/:clientId",
   authenticateToken,
-  authorizeAdmin,
   getFilesByClientIdController
 );
 router.get(
-  "/:urlId",
+  "/:fileId",
   authenticateToken,
-  authorizeAdmin,
   getFilesByIdController
 );
 

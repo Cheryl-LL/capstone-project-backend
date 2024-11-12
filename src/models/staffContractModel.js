@@ -11,7 +11,7 @@ const createStaffContract = (contract, callback) => {
     contract.userId,
     contract.fileId,
     contract.startDate,
-    contract.endDate
+    contract.endDate,
   ];
 
   connection.query(query, values, callback);
@@ -24,32 +24,44 @@ const getAllStaffContracts = (callback) => {
 };
 
 // Function to get a staff contract by contractId
-const getStaffContractById = (contractId, callback) => {
-  const query = "SELECT * FROM staffContract WHERE contractId = ?";
-  connection.query(query, [contractId], (err, results) => {
-    if (err) {
-      return callback(err);
-    }
-    callback(null, results[0]);
+const getStaffContractById = (contractId) => {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM staffContract WHERE contractId = ?";
+    connection.query(query, [contractId], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results[0]);
+    });
   });
 };
 
 // Function to update a staff contract by contractId
-const updateStaffContractById = (contractId, contractData, callback) => {
-  const fields = [];
-  const values = [];
+const updateStaffContractById = (contractId, contractData) => {
+  return new Promise((resolve, reject) => {
+    const fields = [];
+    const values = [];
 
-  Object.keys(contractData).forEach((key) => {
-    if (contractData[key] !== undefined) {
-      fields.push(`${key} = ?`);
-      values.push(contractData[key]);
-    }
+    Object.keys(contractData).forEach((key) => {
+      if (contractData[key] !== undefined) {
+        fields.push(`${key} = ?`);
+        values.push(contractData[key]);
+      }
+    });
+
+    const query = `UPDATE staffContract SET ${fields.join(
+      ", "
+    )} WHERE contractId = ?`;
+    values.push(contractId);
+
+    // Execute the query
+    connection.query(query, values, (err, result) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(result);
+    });
   });
-
-  const query = `UPDATE staffContract SET ${fields.join(", ")} WHERE contractId = ?`;
-  values.push(contractId);
-
-  connection.query(query, values, callback);
 };
 
 // Function to delete a staff contract by contractId
@@ -59,9 +71,16 @@ const deleteStaffContractById = (contractId, callback) => {
 };
 
 // Function to get contracts by userId
-const getStaffContractsByUserId = (userId, callback) => {
-  const query = "SELECT * FROM staffContract WHERE userId = ?";
-  connection.query(query, [userId], callback);
+const getStaffContractsByUserId = (userId) => {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM staffContract WHERE userId = ?";
+    connection.query(query, [userId], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results);
+    });
+  });
 };
 
 module.exports = {

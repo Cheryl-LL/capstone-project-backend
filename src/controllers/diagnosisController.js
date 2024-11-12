@@ -11,16 +11,6 @@ const { getTeamMembersByClientId } = require("../models/teamMemberModel");
 // Controller to create a new diagnosis
 const createDiagnosisController = (req, res) => {
   const { diagnosis, aType, clientId } = req.body;
-  console.log(diagnosis, aType, clientId)
-  console.log(typeof diagnosis, typeof aType, typeof clientId);
-  console.log("Request Body:", req.body);
-
-  // Validate required fields
-  // if (!diagnosis || !aType || !clientId) {
-  //   console.log(diagnosis, aType, clientId);
-  //   return res.status(400).json({ message: "Missing required fields" });
-  // }
-
   createDiagnosis(diagnosis, aType, clientId, (err, result) => {
     if (err) {
       return res
@@ -136,57 +126,9 @@ const getAllDiagnosisController = (req, res) => {
     }
     res.status(200).json(results);
   });
-
-  // Controller to get diagnosis by diagnosisId
-  const getDiagnosisByIdController = async (req, res) => {
-    const { diagnosisId } = req.params;
-    const loggedInUserId = req.user.id;
-    const isAdmin = req.user.isAdmin;
-
-    if (!diagnosisId) {
-      return res.status(400).json({ message: "Diagnosis ID is required" });
-    }
-
-    try {
-      const diagnosis = await new Promise((resolve, reject) => {
-        getDiagnosisById(diagnosisId, (err, results) => {
-          if (err) reject(err);
-          else resolve(results);
-        });
-      });
-
-      if (!diagnosis) {
-        return res.status(404).json({ message: "Diagnosis not found" });
-      }
-
-      // If the user is an admin, allow access to the diagnosis
-      if (isAdmin) {
-        return res.status(200).json(diagnosis);
-      }
-
-      // If the user is not an admin, verify if they are assigned to the client
-      const { clientId } = diagnosis;
-
-      const teamMembers = await getTeamMembersByClientId(clientId);
-      const isAssigned = teamMembers.some(
-        (member) => String(member.userId) === String(loggedInUserId)
-      );
-
-      if (!isAssigned) {
-        return res
-          .status(403)
-          .json({ message: "You are not authorized to view this diagnosis." });
-      }
-
-      return res.status(200).json(diagnosis);
-    } catch (err) {
-      return res
-        .status(500)
-        .json({ message: "Error fetching diagnosis", error: err });
-    }
-  };
 };
 
+// Controller to get diagnosis by diagnosisId
 const getDiagnosisByIdController = async (req, res) => {
   const { diagnosisId } = req.params;
   const loggedInUserId = req.user.id;
@@ -208,20 +150,14 @@ const getDiagnosisByIdController = async (req, res) => {
       return res.status(404).json({ message: "Diagnosis not found" });
     }
 
-    const { clientId } = diagnosis;
-
-    if (!clientId) {
-      return res
-        .status(500)
-        .json({ message: "Client ID is missing in the diagnosis data" });
-    }
-
     // If the user is an admin, allow access to the diagnosis
     if (isAdmin) {
       return res.status(200).json(diagnosis);
     }
 
     // If the user is not an admin, verify if they are assigned to the client
+    const { clientId } = diagnosis;
+
     const teamMembers = await getTeamMembersByClientId(clientId);
     const isAssigned = teamMembers.some(
       (member) => String(member.userId) === String(loggedInUserId)

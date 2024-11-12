@@ -32,13 +32,17 @@ const getAllClientContracts = (callback) => {
 };
 
 // Function to get a client contract by contractId
-const getClientContractById = (contractId, callback) => {
-  const query = "SELECT * FROM clientContract WHERE contractId = ?";
-  connection.query(query, [contractId], (err, results) => {
-    if (err) {
-      return callback(err);
-    }
-    callback(null, results[0]);
+const getClientContractById = (contractId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT * FROM ClientContract WHERE contractId = ?
+    `;
+    connection.query(query, [contractId], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results[0]);
+    });
   });
 };
 
@@ -54,7 +58,9 @@ const updateClientContractById = (contractId, contractData, callback) => {
     }
   });
 
-  const query = `UPDATE clientContract SET ${fields.join(", ")} WHERE contractId = ?`;
+  const query = `UPDATE clientContract SET ${fields.join(
+    ", "
+  )} WHERE contractId = ?`;
   values.push(contractId);
 
   connection.query(query, values, callback);
@@ -67,9 +73,16 @@ const deleteClientContractById = (contractId, callback) => {
 };
 
 // Function to get contracts by clientId
-const getClientContractsByClientId = (clientId, callback) => {
-  const query = "SELECT * FROM clientContract WHERE clientId = ?";
-  connection.query(query, [clientId], callback);
+const getClientContractsByClientId = (clientId) => {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM clientContract WHERE clientId = ?";
+    connection.query(query, [clientId], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results);
+    });
+  });
 };
 
 module.exports = {

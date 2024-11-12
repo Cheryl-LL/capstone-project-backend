@@ -28,30 +28,37 @@ const uploadFile = (fileData, callback) => {
 
 
 // retrieve files based on clientId
-const findFileByClientId = (clientId, callback) => {
-  const query = `
-    SELECT * FROM files WHERE clientId = ?;
-  `;
+const findFileByClientId = (clientId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT * FROM files WHERE clientId = ?;
+    `;
 
-  connection.query(query, [clientId], (err, results) => {
-    if (err) {
-      return callback(err, null);
-    }
-    return callback(null, results);
+    connection.query(query, [clientId], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results);
+    });
   });
 };
 
-const findFileById = (urlId, callback) => {
-  const query = `
-  SELECT * FROM files WHERE urlId = ?;`;
 
-  connection.query(query, [urlId], (err, results) => {
-    if (err) {
-      return callback(err, null);
-    }
-    return callback(null, results);
+const findFileById = (urlId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT * FROM files WHERE fileId = ?;
+    `;
+
+    connection.query(query, [urlId], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results);
+    });
   });
 };
+
 
 const deleteFileById = (urlId, callback) => {
   const query = `DELETE FROM files WHERE urlId = ?`;

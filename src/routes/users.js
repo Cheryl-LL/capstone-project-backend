@@ -14,7 +14,7 @@ const {
 } = require("../middleware/authMiddleware");
 
 // Protect routes
-router.get("/", authenticateToken, getAllUsersController);
+router.get("/", authenticateToken, authorizeAdmin, getAllUsersController);
 router.get("/:id", authenticateToken, getUserByIdController);
 router.patch(
   "/:id",

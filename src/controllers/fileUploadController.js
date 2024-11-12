@@ -19,6 +19,7 @@ const storage = new Storage({
 const bucketName = "capstone-file-upload";
 const bucket = storage.bucket(bucketName);
 const { v4: uuidv4 } = require("uuid");
+const { getTeamMembersByClientId } = require("../models/teamMemberModel");
 
 // single file upload
 async function uploadSingleController(req, res) {
@@ -123,53 +124,94 @@ const deleteFileController = async (req, res) => {
   }
 };
 
-const getFilesByClientIdController = (req, res) => {
+const getFilesByClientIdController = async (req, res) => {
   const clientId = req.params.clientId;
+  const loggedInUserId = req.user.id;
+  const isAdmin = req.user.isAdmin;
 
-  //find files
-  findFileByClientId(clientId, (err, files) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ message: "Error retrieving files.", error: err });
+  if (!clientId) {
+    return res.status(400).json({ message: "Client ID is required" });
+  }
+
+  try {
+    // Check if the user is an admin
+    if (!isAdmin) {
+      // If not an admin, check if the user is part of the team for this client
+      const teamMembers = await getTeamMembersByClientId(clientId);
+      
+      const isTeamMember = teamMembers.some(
+        (member) => String(member.userId) === String(loggedInUserId)
+      );
+
+      if (!isTeamMember) {
+        return res.status(403).json({
+          message: "You are not authorized to view files for this client.",
+        });
+      }
     }
 
-    if (files.length === 0) {
+    // Fetch files by clientId
+    const files = await findFileByClientId(clientId);
+
+    if (!files || files.length === 0) {
       return res
         .status(404)
         .json({ message: "No files found for the given clientId." });
     }
 
-    // return file
-    res.json({
-      files: files,
-    });
-  });
+    // Return the files
+    res.status(200).json({ files });
+  } catch (err) {
+    console.error("Error retrieving files:", err);
+    return res.status(500).json({ message: "Error retrieving files.", error: err });
+  }
 };
 
-const getFilesByIdController = (req, res) => {
-  const urlId = req.params.urlId;
 
-  //find files
-  findFileById(urlId, (err, files) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ message: "Error retrieving files.", error: err });
+const getFilesByIdController = async (req, res) => {
+  const fileId = req.params.fileId;
+  const loggedInUserId = req.user.id;
+  const isAdmin = req.user.isAdmin;
+
+  if (!fileId) {
+    return res.status(400).json({ message: "File ID is required" });
+  }
+
+  try {
+    // Fetch file information by fileId
+    const files = await findFileById(fileId);
+
+    if (!files || files.length === 0) {
+      return res.status(404).json({ message: "No files found for the given fileId." });
     }
 
-    if (files.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No files found for the given urlId." });
+    const file = files[0]; // Assuming there's only one file per file ID
+
+    // Check if the user is an admin
+    if (!isAdmin) {
+      // If not an admin, check if the user is part of the team for this file's client
+      const teamMembers = await getTeamMembersByClientId(file.clientId);
+
+      const isTeamMember = teamMembers.some(
+        (member) => String(member.userId) === String(loggedInUserId)
+      );
+
+      if (!isTeamMember) {
+        return res.status(403).json({
+          message: "You are not authorized to view this file.",
+        });
+      }
     }
 
-    // return file
-    res.json({
-      files: files,
-    });
-  });
+    // Return the file information
+    res.status(200).json({ files });
+  } catch (err) {
+    console.error("Error retrieving file:", err);
+    return res.status(500).json({ message: "Error retrieving file.", error: err });
+  }
 };
+
+
 
 module.exports = {
   uploadSingleController,

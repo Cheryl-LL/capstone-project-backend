@@ -5,6 +5,7 @@ const {
   updatePatientById,
   deletePatientById,
 } = require("../models/patientModel");
+const { getTeamMembersByClientId } = require("../models/teamMemberModel");
 
 const getAllPatientsController = (req, res) => {
   getAllPatients((err, results) => {
@@ -13,7 +14,7 @@ const getAllPatientsController = (req, res) => {
     }
     res.send(results);
   });
-}
+};
 
 const createPatientController = (req, res) => {
   const patient = req.body;
@@ -25,17 +26,43 @@ const createPatientController = (req, res) => {
   });
 };
 
-const getPatientController = (req, res) => {
+const getPatientController = async (req, res) => {
   const { clientId } = req.params;
-  getPatientById(clientId, (err, results) => {
-    if (err) {
-      return res.status(500).send(err);
+  const loggedInUserId = req.user.id; // ID of the logged-in user
+  const isAdmin = req.user.isAdmin; // Admin status of the logged-in user
+
+  try {
+    // If not an admin, check if the user is a team member of the client
+    if (!isAdmin) {
+      const teamMembers = await getTeamMembersByClientId(clientId);
+
+      // Check if the logged-in user is in the list of team members
+      const isTeamMember = teamMembers.some(
+        (member) =>
+          member.userId === loggedInUserId ||
+          member.outsideProviderId === loggedInUserId
+      );
+
+      if (!isTeamMember) {
+        return res
+          .status(403)
+          .json({
+            message:
+              "Access denied. You are not authorized to view this patient's information.",
+          });
+      }
     }
-    if (results.length === 0) {
-      return res.status(404).send("Patient not found");
+
+    // Fetch patient details if admin or authorized team member
+    const patient = await getPatientById(clientId);
+    if (!patient || patient.length === 0) {
+      return res.status(404).json({ message: "Patient not found" });
     }
-    res.status(200).send(results[0]);
-  });
+
+    res.status(200).json(patient[0]);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching patient", error: err });
+  }
 };
 
 const updatePatientController = (req, res) => {
@@ -60,8 +87,6 @@ const updatePatientController = (req, res) => {
     });
   });
 };
-
-
 
 const deletePatientController = (req, res) => {
   const { clientId } = req.params;

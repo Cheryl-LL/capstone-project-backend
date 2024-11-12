@@ -33,7 +33,6 @@ router.get(
 router.get(
   "/:contractId",
   authenticateToken,
-  authorizeAdmin,
   getClientContractByIdController
 );
 

@@ -51,9 +51,18 @@ const createPatient = (patient, callback) => {
   });
 };
 
-const getPatientById = (clientId, callback) => {
-  const query = "SELECT * FROM ExistingClient WHERE clientId = ?";
-  connection.query(query, [clientId], callback);
+const getPatientById = (clientId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT * FROM ExistingClient WHERE clientId = ?
+    `;
+    connection.query(query, [clientId], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results);
+    });
+  });
 };
 
 const updatePatientById = (clientId, patient, callback) => {

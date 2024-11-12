@@ -20,15 +20,28 @@ const getAllUsersController = (req, res) => {
 const getUserByIdController = async (req, res) => {
   try {
     const userId = req.params.id;
+    const loggedInUserId = req.user.id;
+    const isAdmin = req.user.isAdmin; 
+
+    // If the logged-in user is not an admin, restrict access to only their own user information
+    if (!isAdmin && String(userId) !== String(loggedInUserId)) {
+      return res
+        .status(403)
+        .json({
+          message: "Access denied. You can only view your own profile.",
+        });
+    }
+
+    // Fetch user details
     const user = await getUserById(userId);
 
     if (!user) {
-      return res.status(404).send("User not found");
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.send(user);
+    res.json(user);
   } catch (err) {
-    return res.status(500).send(err);
+    return res.status(500).json({ message: "Error fetching user", error: err });
   }
 };
 

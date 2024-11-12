@@ -134,6 +134,23 @@ const checkTeamMemberByClient = (clientId, userId, outsideProviderId) => {
   });
 };
 
+const isUserTeamMemberForSameClient = (userId, outsideProviderId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT 1
+      FROM TeamMember tm1
+      JOIN TeamMember tm2 ON tm1.clientId = tm2.clientId
+      WHERE tm1.userId = ? AND tm2.outsideProviderId = ?
+    `;
+    connection.query(query, [userId, outsideProviderId], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results.length > 0);
+    });
+  });
+};
+
 module.exports = {
   assignTeamMember,
   getTeamMembersByClientId,
@@ -141,4 +158,5 @@ module.exports = {
   unassignTeamMember,
   updateTeamMemberDates,
   checkTeamMemberByClient,
+  isUserTeamMemberForSameClient
 };

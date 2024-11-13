@@ -44,12 +44,10 @@ const getPatientController = async (req, res) => {
       );
 
       if (!isTeamMember) {
-        return res
-          .status(403)
-          .json({
-            message:
-              "Access denied. You are not authorized to view this patient's information.",
-          });
+        return res.status(403).json({
+          message:
+            "Access denied. You are not authorized to view this patient's information.",
+        });
       }
     }
 
@@ -65,27 +63,25 @@ const getPatientController = async (req, res) => {
   }
 };
 
-const updatePatientController = (req, res) => {
+const updatePatientController = async (req, res) => {
   const { clientId } = req.params;
   const patient = req.body;
 
-  // check if the patient exists
-  getPatientById(clientId, (err, results) => {
-    if (err) {
-      return res.status(500).send(err);
-    }
+  try {
+    // check if the patient exists
+    const results = await getPatientById(clientId);
     if (results.length === 0) {
       return res.status(404).send("Patient not found");
     }
 
     // update if the patient exists
-    updatePatientById(clientId, patient, (err, updateResults) => {
-      if (err) {
-        return res.status(500).send(err);
-      }
-      res.status(200).send(updateResults);
-    });
-  });
+    const updateResults = await updatePatientById(clientId, patient);
+    res.status(200).send({ message: "Patient successfully deleted", updateResults });
+
+    res.status(200).send();
+  } catch (err) {
+    res.status(500).send(err);
+  }
 };
 
 const deletePatientController = (req, res) => {

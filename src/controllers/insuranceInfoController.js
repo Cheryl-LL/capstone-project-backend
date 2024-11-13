@@ -99,7 +99,7 @@ const getInsuranceInfoByClientIdController = async (req, res) => {
 };
 
 // Controller to update insurance info by ID
-const updateInsuranceInfoByIdController = (req, res) => {
+const updateInsuranceInfoByIdController = async (req, res) => {
   const { insuranceInfoId } = req.params;
   const insuranceData = req.body;
 
@@ -107,17 +107,20 @@ const updateInsuranceInfoByIdController = (req, res) => {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
-  updateInsuranceInfoById(insuranceInfoId, insuranceData, (err, result) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ message: "Error updating insurance info", error: err });
-    }
+  try {
+    const result = await updateInsuranceInfoById(
+      insuranceInfoId,
+      insuranceData
+    );
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Insurance info not found" });
     }
     res.status(200).json({ message: "Insurance info updated successfully" });
-  });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error updating insurance info", error: err });
+  }
 };
 
 // Controller to delete insurance info by ID

@@ -46,23 +46,38 @@ const getInsuranceInfoByClientId = (clientId, callback) => {
 };
 
 // Function to update insurance info by insuranceInfoId
-const updateInsuranceInfoById = (insuranceInfoId, insuranceData, callback) => {
-  const fields = [];
-  const values = [];
+const updateInsuranceInfoById = (insuranceInfoId, insuranceData) => {
+  return new Promise((resolve, reject) => {
+    const fields = [];
+    const values = [];
 
-  // Dynamically create the query
-  Object.keys(insuranceData).forEach((key) => {
-    if (insuranceData[key] !== undefined) {
-      fields.push(`${key} = ?`);
-      values.push(insuranceData[key]);
+    // Dynamically create the query
+    Object.keys(insuranceData).forEach((key) => {
+      if (insuranceData[key] !== undefined) {
+        fields.push(`${key} = ?`);
+        values.push(insuranceData[key]);
+      }
+    });
+
+    // Check if there are fields to update
+    if (fields.length === 0) {
+      return reject(new Error("No fields to update"));
     }
+
+    // Construct the SQL query
+    const query = `UPDATE InsuranceInfo SET ${fields.join(', ')} WHERE insuranceInfoId = ?`;
+    values.push(insuranceInfoId);
+
+    // Execute the query
+    connection.query(query, values, (err, results) => {
+      if (err) {
+        return reject(err); // Reject the promise with the error
+      }
+      resolve(results); // Resolve the promise with the results
+    });
   });
-
-  const query = `UPDATE InsuranceInfo SET ${fields.join(", ")} WHERE insuranceInfoId = ?`;
-  values.push(insuranceInfoId);  // Add insuranceInfoId at the end
-
-  connection.query(query, values, callback);
 };
+
 
 // Function to delete insurance info by insuranceInfoId
 const deleteInsuranceInfoById = (insuranceInfoId, callback) => {

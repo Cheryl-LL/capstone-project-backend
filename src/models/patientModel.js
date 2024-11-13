@@ -65,25 +65,32 @@ const getPatientById = (clientId) => {
   });
 };
 
-const updatePatientById = (clientId, patient, callback) => {
-  // Initialize an array to hold the field assignments
-  const fields = [];
-  const values = [];
+const updatePatientById = (clientId, patient) => {
+  return new Promise((resolve, reject) => {
+    // Initialize an array to hold the field assignments
+    const fields = [];
+    const values = [];
 
-  // Iterate over the patient object to dynamically create the query
-  Object.keys(patient).forEach((key) => {
-    if (patient[key] !== undefined) {
-      fields.push(`${key} = ?`);
-      values.push(patient[key]);
-    }
+    // Iterate over the patient object to dynamically create the query
+    Object.keys(patient).forEach((key) => {
+      if (patient[key] !== undefined) {
+        fields.push(`${key} = ?`);
+        values.push(patient[key]);
+      }
+    });
+
+    // Join the fields array with commas to form the SET clause
+    const query = `UPDATE ExistingClient SET ${fields.join(', ')} WHERE clientId = ?`;
+    values.push(clientId); // Add clientId to the values array
+
+    // Execute the query and handle the promise resolve/reject
+    connection.query(query, values, (err, results) => {
+      if (err) {
+        return reject(err); // reject the promise with the error
+      }
+      resolve(results); // resolve the promise with the results
+    });
   });
-
-  // Join the fields array with commas to form the SET clause
-  const query = `UPDATE ExistingClient SET ${fields.join(', ')} WHERE clientId = ?`;
-  values.push(clientId); // Add clientId to the values array
-
-  // Execute the query
-  connection.query(query, values, callback);
 };
 
 

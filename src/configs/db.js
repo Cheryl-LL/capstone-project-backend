@@ -347,6 +347,29 @@ CREATE TABLE IF NOT EXISTS staffContract (
   });
 });
 
+const createInvoiceTableQuery = `
+  CREATE TABLE IF NOT EXISTS Invoice (
+    invoiceId INT AUTO_INCREMENT PRIMARY KEY,
+    userId INT NOT NULL,
+    firstName VARCHAR(50) NOT NULL,
+    lastName VARCHAR(50) NOT NULL,
+    month DATE NOT NULL,
+    rate FLOAT NOT NULL,
+    hours FLOAT NOT NULL,
+    isGiven BOOLEAN NOT NULL,
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+  );
+`;
+
+connection.query(createInvoiceTableQuery, (err, results) => {
+  if (err) {
+    console.error("Error creating Invoice table:", err);
+    return;
+  }
+  console.log("Invoice table is created.");
+});
+
+
 // function executeQuery(query, tableName) {
 //   return new Promise((resolve, reject) => {
 //     connection.query(query, (err, results) => {

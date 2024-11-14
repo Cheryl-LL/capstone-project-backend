@@ -31,6 +31,8 @@ var clientContractRouter = require("./src/routes/clientContract");
 var outsideProviderRouter = require("./src/routes/outsideProvider");
 var staffContractRouter = require("./src/routes/staffContract");
 
+const invoiceRouter = require("./src/routes/invoice"); // new
+
 var app = express();
 
 const corsOptions = {
@@ -94,6 +96,8 @@ app.use("/insurance-info", insuranceInfoRouter);
 app.use("/client-contract", clientContractRouter);
 app.use("/outside-provider", outsideProviderRouter);
 app.use("/staff-contract", staffContractRouter);
+
+app.use("/invoice", invoiceRouter);//new
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

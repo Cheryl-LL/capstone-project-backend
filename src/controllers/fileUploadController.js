@@ -16,7 +16,7 @@ const storage = new Storage({
   },
 });
 
-const bucketName = "capstone-file-upload";
+const bucketName = process.env.GOOGLE_CLOUD_BUCKET_NAME;
 const bucket = storage.bucket(bucketName);
 const { v4: uuidv4 } = require("uuid");
 const { getTeamMembersByClientId } = require("../models/teamMemberModel");
@@ -54,7 +54,7 @@ async function uploadSingleController(req, res) {
         filePath: publicUrl,
         fileSize: file.size,
         fileType: file.mimetype,
-        fileCategory: req.body.fileCategory
+        fileCategory: req.body.fileCategory,
       };
       uploadFile(fileData, (err, insertId) => {
         if (err) {
@@ -138,7 +138,7 @@ const getFilesByClientIdController = async (req, res) => {
     if (!isAdmin) {
       // If not an admin, check if the user is part of the team for this client
       const teamMembers = await getTeamMembersByClientId(clientId);
-      
+
       const isTeamMember = teamMembers.some(
         (member) => String(member.userId) === String(loggedInUserId)
       );
@@ -163,10 +163,11 @@ const getFilesByClientIdController = async (req, res) => {
     res.status(200).json({ files });
   } catch (err) {
     console.error("Error retrieving files:", err);
-    return res.status(500).json({ message: "Error retrieving files.", error: err });
+    return res
+      .status(500)
+      .json({ message: "Error retrieving files.", error: err });
   }
 };
-
 
 const getFilesByIdController = async (req, res) => {
   const fileId = req.params.fileId;
@@ -182,7 +183,9 @@ const getFilesByIdController = async (req, res) => {
     const files = await findFileById(fileId);
 
     if (!files || files.length === 0) {
-      return res.status(404).json({ message: "No files found for the given fileId." });
+      return res
+        .status(404)
+        .json({ message: "No files found for the given fileId." });
     }
 
     const file = files[0]; // Assuming there's only one file per file ID
@@ -207,11 +210,11 @@ const getFilesByIdController = async (req, res) => {
     res.status(200).json({ files });
   } catch (err) {
     console.error("Error retrieving file:", err);
-    return res.status(500).json({ message: "Error retrieving file.", error: err });
+    return res
+      .status(500)
+      .json({ message: "Error retrieving file.", error: err });
   }
 };
-
-
 
 module.exports = {
   uploadSingleController,

@@ -1,6 +1,9 @@
 // src/models/waitlistClientModel.js
 const connection = require('../configs/db');
 
+function handleDateValue(date) {
+  return date && date !== '' ? date : null;
+}
 const waitlistClientModel = {
   createWaitlistClient: (data, callback) => {
     const query = `
@@ -16,45 +19,45 @@ const waitlistClientModel = {
     `;
 
     const values = [
-      data.datePlaced,
-      data.dateContact,
-      data.dateServiceOffered,
-      data.dateStartedService,
-      data.community,
-      data.fundingSources,
-      data.serviceProvidersNeeded,
-      data.consultationHistory, // Changed from data.consultHistory
-      data.dateConsultationBooked,
-      data.firstName,
-      data.lastName,
-      data.gender,
-      data.birthDate,
-      data.address,
-      data.postalCode,
-      data.province,
-      data.city,
-      data.phoneNumber,
-      data.email,
-      data.diagnosis,
-      data.school,
-      data.fscdIdNum,
-      data.caseWorkerName,
-      data.serviceType,
-      data.availability,
-      data.locationOfService,
-      data.feeDiscussed, // Corrected from data.feesDiscussed
-      data.followUp,
-      data.referralFrom,
-      data.previousService,
-      data.paperworkDeadline,
-      data.nextMeetingDate,
-      data.concerns,
-      data.pets, // Added
-      data.parentName, // Added
-      data.language, // Added
-      data.siblings, // Added
-      data.hasConverted, // Added
-      data.isArchived
+      handleDateValue(data.datePlaced),
+      handleDateValue(data.dateContact),
+      handleDateValue(data.dateServiceOffered),
+      handleDateValue(data.dateStartedService),
+      data.community || null,
+      data.fundingSources || null,
+      data.serviceProvidersNeeded ? data.serviceProvidersNeeded.join(',') : null,
+      data.consultationHistory || null,
+      handleDateValue(data.dateConsultationBooked),
+      data.firstName || null,
+      data.lastName || null,
+      data.gender || null,
+      handleDateValue(data.birthDate),
+      data.address || null,
+      data.postalCode || null,
+      data.province || null,
+      data.city || null,
+      data.phoneNumber || null,
+      data.email || null,
+      data.diagnosis || null,
+      data.school || null,
+      data.fscdIdNum || null,
+      data.caseWorkerName || null,
+      data.serviceType || null,
+      data.availability || null,
+      data.locationOfService || null,
+      data.feeDiscussed ? 1 : 0,
+      data.followUp || null,
+      data.referralFrom || null,
+      data.previousService || null,
+      handleDateValue(data.paperworkDeadline),
+      handleDateValue(data.nextMeetingDate),
+      data.concerns || null,
+      data.pets || null,
+      data.parentName || null,
+      data.language || null,
+      data.siblings || null,
+      data.hasConverted ? 1 : 0,
+      data.isArchived ? 1 : 0,
     ];
 
     connection.query(query, values, callback);

@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "jest --coverage"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.13.0",
@@ -22,5 +23,9 @@
     "mysql2": "^3.10.3",
     "nodemailer": "^6.9.14",
     "pug": "^3.0.3"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }

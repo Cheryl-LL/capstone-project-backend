@@ -18,7 +18,6 @@ const {
   };
   
   const createInvoiceController = (req, res) => {
-    console.log("req.user:", req.user);
   
     const invoiceData = req.body;
     const loggedInUserId = req.user.id; // Use 'id' instead of 'userId'

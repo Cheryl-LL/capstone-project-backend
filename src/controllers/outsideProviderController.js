@@ -45,12 +45,9 @@ const createOutsideProviderController = async (req, res) => {
 
 // Controller to get a specific outside provider by ID
 const getOutsideProviderByIdController = async (req, res) => {
-  console.log("getOutsideProviderByIdController called");
   const { outsideProviderId } = req.params;
   const loggedInUserId = req.user.id;
   const isAdmin = req.user.isAdmin; 
-  console.log(outsideProviderId, loggedInUserId, isAdmin)
-
   try {
     // Fetch the outside provider details
     const outsideProvider = await getOutsideProviderById(outsideProviderId);
@@ -62,7 +59,6 @@ const getOutsideProviderByIdController = async (req, res) => {
     // If not an admin, check if the logged-in user is a team member for the same client
     if (!isAdmin) {
       const isAuthorized = await isUserTeamMemberForSameClient(loggedInUserId, outsideProviderId);
-      console.log(isAuthorized, loggedInUserId, outsideProviderId)
       
       if (!isAuthorized) {
         return res.status(403).json({

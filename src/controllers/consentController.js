@@ -47,7 +47,6 @@ const getConsentByIdController = async (req, res) => {
   try {
     // Fetch the consent by ID
     const consent = await getConsentById(consentId);
-    console.log(consent);
 
     if (!consent) {
       return res.status(404).json({ message: "Consent not found" });
@@ -146,8 +145,6 @@ const getConsentByClientIdController = async (req, res) => {
   const loggedInUserId = req.user.id;
   const isAdmin = req.user.isAdmin;
 
-  console.log(clientId, loggedInUserId, isAdmin);
-
   if (!clientId) {
     return res.status(400).json({ message: "Client ID is required" });
   }
@@ -157,8 +154,6 @@ const getConsentByClientIdController = async (req, res) => {
     if (!isAdmin) {
       // If not an admin, check if the user is part of the team for this client
       const teamMembers = await getTeamMembersByClientId(clientId);
-
-      console.log(teamMembers, isAdmin);
 
       const isTeamMember = teamMembers.some(
         (member) => String(member.userId) === String(loggedInUserId)

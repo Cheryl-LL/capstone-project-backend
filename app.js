@@ -74,7 +74,7 @@ app.use(
           includeSubDomains: true,
           preload: true,
         }
-      : false, // Disable HSTS in development
+      : false, 
     noSniff: true,
     xssFilter: true,
     ieNoOpen: true,

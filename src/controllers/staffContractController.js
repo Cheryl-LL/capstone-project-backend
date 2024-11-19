@@ -172,7 +172,6 @@ const getStaffContractsByUserIdController = async (req, res) => {
   const { userId } = req.params;
   const loggedInUserId = req.user.id;
   const isAdmin = req.user.isAdmin;
-  console.log(userId, loggedInUserId, isAdmin);
 
   if (!userId) {
     return res.status(400).json({ message: "User ID is required" });
@@ -183,7 +182,6 @@ const getStaffContractsByUserIdController = async (req, res) => {
     if (!isAdmin && String(userId) !== String(loggedInUserId)) {
       // If not an admin and not the logged-in user's own data, check team membership
       const teamMembers = await getTeamMembersByUserId(userId);
-      console.log(teamMembers);
       const isTeamMember = teamMembers.some(
         (member) => String(member.userId) === String(loggedInUserId)
       );

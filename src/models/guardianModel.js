@@ -1,25 +1,33 @@
 const connection = require("../configs/db");
 
 // Create a new primary guardian
-const createPrimaryGuardian = (guardian, callback) => {
-  const query = `
-    INSERT INTO PrimaryGuardian (clientId, custody, firstName, lastName, relationship, phoneNumber, email, address, city, province, postalCode)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?)
-  `;
-  const values = [
-    guardian.clientId,
-    guardian.custody,
-    guardian.firstName,
-    guardian.lastName,
-    guardian.relationship,
-    guardian.phoneNumber,
-    guardian.email,
-    guardian.address,
-    guardian.city,
-    guardian.province,
-    guardian.postalCode,
-  ];
-  connection.query(query, values, callback);
+const createPrimaryGuardian = (guardian) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      INSERT INTO PrimaryGuardian (clientId, custody, firstName, lastName, relationship, phoneNumber, email, address, city, province, postalCode)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const values = [
+      guardian.clientId,
+      guardian.custody,
+      guardian.firstName,
+      guardian.lastName,
+      guardian.relationship,
+      guardian.phoneNumber,
+      guardian.email,
+      guardian.address,
+      guardian.city,
+      guardian.province,
+      guardian.postalCode,
+    ];
+
+    connection.query(query, values, (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results);
+    });
+  });
 };
 
 // Get primary guardian by client ID

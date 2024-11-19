@@ -293,44 +293,6 @@ const loginUserController = (req, res) => {
   });
 };
 
-//   const { email, password } = req.body;
-
-//   getUserByEmail(email, async (err, results) => {
-//     if (err) {
-//       return res.status(500).send("Internal Server Error");
-//     }
-
-//     if (results.length === 0) {
-//       return res.status(401).send("Invalid email or password");
-//     }
-
-//     const user = results[0];
-
-//     try {
-//       const passwordMatch = await bcrypt.compare(password, user.password);
-//       if (passwordMatch) {
-//         const token = jwt.sign(
-//           { id: user.userId, email: user.email, isAdmin: user.isAdmin },
-//           process.env.JWT_SECRET,
-//           { expiresIn: "1h" }
-//         );
-
-//         // Exclude the password from the user object
-//         const { password, ...userWithoutPassword } = user;
-//         res.json({
-//           token,
-//           user: userWithoutPassword,
-//         });
-//       } else {
-//         res.status(401).send("Invalid email or password");
-//       }
-//     } catch (error) {
-//       res
-//         .status(500)
-//         .send("Error during password comparison or token generation:", error);
-//     }
-//   });
-// };
 
 const requestPasswordReset = async (req, res) => {
   const { email } = req.body;

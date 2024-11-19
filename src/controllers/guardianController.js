@@ -7,14 +7,14 @@ const {
 const { isUserTeamMemberForSameClient } = require("../models/teamMemberModel");
 
 // Create primary guardian
-const createPrimaryGuardianController = (req, res) => {
+const createPrimaryGuardianController = async (req, res) => {
   const guardian = req.body;
-  createPrimaryGuardian(guardian, (err, results) => {
-    if (err) {
-      return res.status(500).send(err);
-    }
+  try {
+    const results = await createPrimaryGuardian(guardian);
     res.status(201).send({ message: "Primary guardian created successfully" });
-  });
+  } catch (err) {
+    res.status(500).send(err);
+  }
 };
 
 // Get primary guardian by client ID

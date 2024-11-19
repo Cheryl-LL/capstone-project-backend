@@ -1,5 +1,4 @@
 const mysql = require("mysql2");
-const fs = require("fs");
 
 const requireSSL = process.env.REQUIRE_SSL === "true";
 
@@ -12,13 +11,7 @@ const connection = mysql.createPool({
   waitForConnections: true, // Wait for connections when pool is full
   connectionLimit: 10, // Maximum number of connections in the pool
   queueLimit: 0,
-  ssl: requireSSL
-    ? {
-        ca: fs.readFileSync("certs/BaltimoreCyberTrustRoot.crt"),
-        minVersion: "TLSv1.2",
-        rejectUnauthorized: true,
-      }
-    : false,
+  ssl: requireSSL ? {} : false, // Enable SSL without specifying the certificate
 });
 
 const createUserTableQuery = `
@@ -369,261 +362,269 @@ connection.query(createInvoiceTableQuery, (err, results) => {
   console.log("Invoice table is created.");
 });
 
+// const mysql = require("mysql2");
+// require("dotenv").config();
 
-// function executeQuery(query, tableName) {
-//   return new Promise((resolve, reject) => {
-//     connection.query(query, (err, results) => {
-//       if (err) {
-//         console.error(`Error creating ${tableName} table:`, err);
-//         reject(err);
-//       } else {
-//         console.log(`${tableName} table is created.`);
-//         resolve(results);
-//       }
+// // Create a connection pool to the database
+// const pool = mysql.createPool({
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   database: process.env.DB_NAME,
+//   charset: "utf8mb4",
+//   waitForConnections: true,
+//   connectionLimit: 10,
+//   queueLimit: 0,
+// });
+
+// // Helper function to execute queries
+// const query = (sql, params = []) =>
+//   new Promise((resolve, reject) => {
+//     pool.query(sql, params, (err, results) => {
+//       if (err) return reject(err);
+//       resolve(results);
 //     });
 //   });
-// }
 
-// // Define each table creation query
-// const queries = [
-//   {
-//     query: `
-//     CREATE TABLE IF NOT EXISTS users (
-//       userId INT AUTO_INCREMENT PRIMARY KEY,
-//       firstName VARCHAR(50) NOT NULL,
-//       lastName VARCHAR(50) NOT NULL,
-//       email VARCHAR(100) NOT NULL UNIQUE,
-//       password VARCHAR(255) NOT NULL,
-//       phoneNumber VARCHAR(20) NOT NULL,
-//       address VARCHAR(100) NOT NULL,
-//       postalCode VARCHAR(10) NOT NULL,
-//       city VARCHAR(50) NOT NULL,
-//       province VARCHAR(50) NOT NULL,
-//       SIN VARCHAR(50) NOT NULL,
-//       rate FLOAT NOT NULL,
-//       isAdmin TINYINT(1) NOT NULL,
-//       isOutsideProvider TINYINT(1) NOT NULL,
-//       agency VARCHAR(50),
-//       beneficiary VARCHAR(50),
-//       licencingCollege VARCHAR(50),
-//       registrationNumber VARCHAR(50),
-//       contractStartDate DATE NOT NULL,
-//       contractEndDate DATE NOT NULL,
-//       resetPasswordToken VARCHAR(255),
-//       resetPasswordExpires DATETIME,
-//       captchaCode VARCHAR(6),
-//       role VARCHAR(50) NOT NULL
-//     );
-//   `,
-//     name: "users",
-//   },
+// // Close pool connection (used in tests or app teardown)
+// const end = () =>
+//   new Promise((resolve, reject) => {
+//     pool.end((err) => {
+//       if (err) return reject(err);
+//       resolve();
+//     });
+//   });
 
-//   {
-//     query: `
-//     CREATE TABLE IF NOT EXISTS ExistingClient (
-//       clientId INT AUTO_INCREMENT PRIMARY KEY,
-//       psNote VARCHAR(200),
-//       firstName VARCHAR(50) NOT NULL,
-//       lastName VARCHAR(50) NOT NULL,
-//       gender VARCHAR(20) NOT NULL,
-//       birthDate DATE NOT NULL,
-//       address VARCHAR(100) NOT NULL,
-//       city VARCHAR(50) NOT NULL,
-//       province VARCHAR(50) NOT NULL,
-//       postalCode VARCHAR(10) NOT NULL,
-//       school VARCHAR(50),
-//       age INT,
-//       fscdIdNum VARCHAR(50),
-//       currentStatus BOOLEAN,
-//       phoneNumber VARCHAR(20) NOT NULL,
-//       email VARCHAR(100) NOT NULL,
-//       serviceStartDate DATE,
-//       serviceEndDate DATE,
-//       grade VARCHAR(10)
-//     );
-//   `,
-//     name: "ExistingClient",
-//   },
+// // Function to create tables
+// const createTables = async () => {
+//   try {
+//     // Create Users table
+//     await query(`
+//       CREATE TABLE IF NOT EXISTS users (
+//         userId INT AUTO_INCREMENT PRIMARY KEY,
+//         firstName VARCHAR(50) NOT NULL,
+//         lastName VARCHAR(50) NOT NULL,
+//         email VARCHAR(100) NOT NULL UNIQUE,
+//         password VARCHAR(255) NOT NULL,
+//         phoneNumber VARCHAR(20) NOT NULL,
+//         address VARCHAR(100) NOT NULL,
+//         postalCode VARCHAR(10) NOT NULL,
+//         city VARCHAR(50) NOT NULL,
+//         province VARCHAR(50) NOT NULL,
+//         SIN VARCHAR(50) NOT NULL,
+//         rate FLOAT NOT NULL,
+//         isAdmin TINYINT(1) NOT NULL,
+//         isOutsideProvider TINYINT(1) NOT NULL,
+//         agency VARCHAR(50),
+//         beneficiary VARCHAR(50),
+//         licencingCollege VARCHAR(50),
+//         registrationNumber VARCHAR(50),
+//         contractStartDate DATE NOT NULL,
+//         contractEndDate DATE NOT NULL,
+//         resetPasswordToken VARCHAR(255),
+//         resetPasswordExpires DATETIME,
+//         captchaCode VARCHAR(6),
+//         role VARCHAR(50) NOT NULL
+//       );
+//     `);
+//     console.log("Users table is created.");
 
-//   {
-//     query: `
-//     CREATE TABLE IF NOT EXISTS files (
-//       fileId INT AUTO_INCREMENT PRIMARY KEY,
-//       clientId INT NULL,
-//       userId INT NULL,
-//       urlId VARCHAR(255) NOT NULL,
-//       fileName VARCHAR(50),
-//       filePath VARCHAR(255),
-//       fileSize INT,
-//       fileType VARCHAR(50),
-//       fileCategory TINYINT(1) NOT NULL,
-//       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//       FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
-//       FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
-//     );
-//   `,
-//     name: "files",
-//   },
+//     // Create ExistingClient table
+//     await query(`
+//       CREATE TABLE IF NOT EXISTS ExistingClient (
+//         clientId INT AUTO_INCREMENT PRIMARY KEY,
+//         psNote TEXT,
+//         firstName VARCHAR(50) NOT NULL,
+//         lastName VARCHAR(50) NOT NULL,
+//         gender VARCHAR(20) NOT NULL,
+//         birthDate DATE NOT NULL,
+//         address VARCHAR(100) NOT NULL,
+//         city VARCHAR(50) NOT NULL,
+//         province VARCHAR(50) NOT NULL,
+//         postalCode VARCHAR(10) NOT NULL,
+//         school VARCHAR(50),
+//         age INT,
+//         fscdIdNum VARCHAR(50),
+//         currentStatus BOOLEAN,
+//         phoneNumber VARCHAR(20) NOT NULL,
+//         email VARCHAR(100) NOT NULL,
+//         serviceStartDate DATE,
+//         serviceEndDate DATE,
+//         grade VARCHAR(10)
+//       );
+//     `);
+//     console.log("ExistingClient table is created.");
 
-//   {
-//     query: `
-//     CREATE TABLE IF NOT EXISTS TeamMember (
-//       teamMemberId INT AUTO_INCREMENT PRIMARY KEY,
-//       clientId INT NOT NULL,
-//       userId INT NOT NULL,
-//       startServiceDate DATE,
-//       endServiceDate DATE,
-//       FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
-//       FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
-//     );
-//   `,
-//     name: "TeamMember",
-//   },
+//     // Create Files table
+//     await query(`
+//       CREATE TABLE IF NOT EXISTS files (
+//         fileId INT AUTO_INCREMENT PRIMARY KEY,
+//         clientId INT NULL,
+//         userId INT NULL,
+//         urlId VARCHAR(255) NOT NULL,
+//         fileName VARCHAR(50),
+//         filePath VARCHAR(255),
+//         fileSize INT,
+//         fileType VARCHAR(50),
+//         fileCategory TINYINT(1) NOT NULL,
+//         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+//         FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
+//         FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+//       );
+//     `);
+//     console.log("Files table is created.");
 
-//   {
-//     query: `
-//     CREATE TABLE IF NOT EXISTS clientContract (
-//       contractId INT AUTO_INCREMENT PRIMARY KEY,
-//       clientId INT NOT NULL,
-//       fileId INT NOT NULL,
-//       startDate DATE NOT NULL,
-//       endDate DATE NOT NULL,
-//       COOhours INT,
-//       PBChours INT,
-//       SLPhours INT,
-//       OThours INT,
-//       PThours INT,
-//       AIDEhours INT,
-//       COUShours INT,
-//       CARhours INT,
-//       FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
-//       FOREIGN KEY (fileId) REFERENCES files(fileId) ON DELETE CASCADE
-//     );
-//   `,
-//     name: "clientContract",
-//   },
+//     // Create TeamMember table
+//     await query(`
+//       CREATE TABLE IF NOT EXISTS TeamMember (
+//         teamMemberId INT AUTO_INCREMENT PRIMARY KEY,
+//         clientId INT NOT NULL,
+//         userId INT,
+//         outsideProviderId INT,
+//         startServiceDate DATE,
+//         endServiceDate DATE,
+//         FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
+//         FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+//       );
+//     `);
+//     console.log("TeamMember table is created.");
 
-//   {
-//     query: `
-//     CREATE TABLE IF NOT EXISTS consent (
-//       consentId INT AUTO_INCREMENT PRIMARY KEY,
-//       clientId INT NOT NULL,
-//       permissionNote TEXT NOT NULL,
-//       receivedDate DATE NOT NULL,
-//       withdrawDate DATE,
-//       FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
-//     );
-//   `,
-//     name: "consent",
-//   },
+//     // Create ClientContract table
+//     await query(`
+//       CREATE TABLE IF NOT EXISTS clientContract (
+//         contractId INT AUTO_INCREMENT PRIMARY KEY,
+//         clientId INT NOT NULL,
+//         fileId INT NOT NULL,
+//         startDate DATE NOT NULL,
+//         endDate DATE NOT NULL,
+//         COOhours INT,
+//         PBChours INT,
+//         SLPhours INT,
+//         OThours INT,
+//         PThours INT,
+//         AIDEhours INT,
+//         COUShours INT,
+//         CARhours INT,
+//         FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
+//         FOREIGN KEY (fileId) REFERENCES files(fileId) ON DELETE CASCADE
+//       );
+//     `);
+//     console.log("ClientContract table is created.");
 
-//   {
-//     query: `
-//     CREATE TABLE IF NOT EXISTS InsuranceInfo (
-//       insuranceInfoId INT AUTO_INCREMENT PRIMARY KEY,
-//       clientId INT NOT NULL,
-//       insuranceProvider VARCHAR(50) NOT NULL,
-//       primaryPlanName VARCHAR(50) NOT NULL,
-//       certificateId VARCHAR(50) NOT NULL,
-//       coverateDetail TEXT,
-//       startDate DATE NOT NULL,
-//       endDate DATE NOT NULL,
-//       FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
-//     );
-//   `,
-//     name: "InsuranceInfo",
-//   },
+//     // Create Consent table
+//     await query(`
+//       CREATE TABLE IF NOT EXISTS consent (
+//         consentId INT AUTO_INCREMENT PRIMARY KEY,
+//         clientId INT NOT NULL,
+//         permissionNote TEXT NOT NULL,
+//         receivedDate DATE NOT NULL,
+//         withdrawDate DATE,
+//         FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+//       );
+//     `);
+//     console.log("Consent table is created.");
 
-//   {
-//     query: `
-//     CREATE TABLE IF NOT EXISTS Diagnosis (
-//       diagnosisId INT AUTO_INCREMENT PRIMARY KEY,
-//       diagnosis VARCHAR(50) NOT NULL,
-//       aType TINYINT(1) NOT NULL,
-//       clientId INT NOT NULL,
-//       FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
-//     );
-//   `,
-//     name: "Diagnosis",
-//   },
+//     // Create InsuranceInfo table
+//     await query(`
+//       CREATE TABLE IF NOT EXISTS InsuranceInfo (
+//         insuranceInfoId INT AUTO_INCREMENT PRIMARY KEY,
+//         clientId INT NOT NULL,
+//         insuranceProvider VARCHAR(50) NOT NULL,
+//         primaryPlanName VARCHAR(50) NOT NULL,
+//         certificateId VARCHAR(50) NOT NULL,
+//         coverateDetail TEXT,
+//         startDate DATE NOT NULL,
+//         endDate DATE NOT NULL,
+//         FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+//       );
+//     `);
+//     console.log("InsuranceInfo table is created.");
 
-//   {
-//     query: `
-//     CREATE TABLE IF NOT EXISTS waitlistClient (
-//       waitlistClientId INT AUTO_INCREMENT PRIMARY KEY,
-//       datePlaced DATE NOT NULL,
-//       dateContact DATE NOT NULL,
-//       dateServiceOffered DATE,
-//       dateStartedService DATE,
-//       community VARCHAR(100),
-//       fundingSources VARCHAR(255),
-//       serviceNeeded VARCHAR(255),
-//       consultHistory TEXT,
-//       dateConsultationBooked DATE,
-//       firstName VARCHAR(50) NOT NULL,
-//       lastName VARCHAR(50) NOT NULL,
-//       gender VARCHAR(20),
-//       birthDate DATE,
-//       address VARCHAR(100),
-//       postalCode VARCHAR(10),
-//       province VARCHAR(50),
-//       city VARCHAR(100),
-//       phoneNumber VARCHAR(20),
-//       email VARCHAR(100),
-//       diagnosis VARCHAR(255),
-//       school VARCHAR(100),
-//       age INT,
-//       fscdIdNum VARCHAR(50),
-//       caseWorkerName VARCHAR(50),
-//       serviceType VARCHAR(100),
-//       serviceProvidersNeeded VARCHAR(255),
-//       availability VARCHAR(255),
-//       locationOfService VARCHAR(100),
-//       feesDiscussed VARCHAR(255),
-//       followUp VARCHAR(255),
-//       referralFrom VARCHAR(255),
-//       previousService VARCHAR(255),
-//       paperworkDeadline DATE,
-//       nextMeetingDate DATE,
-//       concerns TEXT,
-//       isArchived BOOLEAN NOT NULL
-//     );
-//   `,
-//     name: "waitlistClient",
-//   },
+//     // Create Diagnosis table
+//     await query(`
+//       CREATE TABLE IF NOT EXISTS Diagnosis (
+//         diagnosisId INT AUTO_INCREMENT PRIMARY KEY,
+//         diagnosis VARCHAR(50) NOT NULL,
+//         aType TINYINT(1) NOT NULL,
+//         clientId INT NOT NULL,
+//         FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
+//       );
+//     `);
+//     console.log("Diagnosis table is created.");
 
-//   {
-//     query: `
-//     CREATE TABLE IF NOT EXISTS PrimaryGuardian (
-//       guardianId INT AUTO_INCREMENT PRIMARY KEY,
-//       clientId INT NOT NULL,
-//       custody VARCHAR(100) NOT NULL,
-//       firstName VARCHAR(50) NOT NULL,
-//       lastName VARCHAR(50) NOT NULL,
-//       relationship VARCHAR(50),
-//       phoneNumber VARCHAR(20),
-//       email VARCHAR(100) NOT NULL,
-//       address VARCHAR(100),
-//       city VARCHAR(50),
-//       province VARCHAR(50),
-//       postalCode VARCHAR(10),
-//       FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE
-//     );
-//   `,
-//     name: "PrimaryGuardian",
-//   },
-// ];
+//     // Create WaitlistClient table
+//     await query(`
+//       CREATE TABLE IF NOT EXISTS waitlistClient (
+//         waitlistClientId INT AUTO_INCREMENT PRIMARY KEY,
+//         datePlaced DATE NOT NULL,
+//         dateContact DATE NOT NULL,
+//         dateServiceOffered DATE,
+//         dateStartedService DATE,
+//         community VARCHAR(100),
+//         fundingSources VARCHAR(255),
+//         serviceProvidersNeeded VARCHAR(255),
+//         consultHistory TEXT,
+//         dateConsultationBooked DATE,
+//         firstName VARCHAR(50) NOT NULL,
+//         lastName VARCHAR(50) NOT NULL,
+//         gender VARCHAR(20),
+//         birthDate DATE,
+//         address VARCHAR(100),
+//         postalCode VARCHAR(10),
+//         province VARCHAR(50),
+//         city VARCHAR(100),
+//         phoneNumber VARCHAR(20),
+//         email VARCHAR(100),
+//         diagnosis VARCHAR(255),
+//         school VARCHAR(100),
+//         fscdIdNum VARCHAR(50),
+//         caseWorkerName VARCHAR(50),
+//         serviceType VARCHAR(100),
+//         availability VARCHAR(255),
+//         locationOfService VARCHAR(100),
+//         feeDiscussed BOOLEAN,
+//         followUp VARCHAR(255),
+//         referralFrom VARCHAR(255),
+//         previousService VARCHAR(255),
+//         paperworkDeadline DATE,
+//         nextMeetingDate DATE,
+//         concerns TEXT,
+//         pets VARCHAR(255),
+//         parentName VARCHAR(100),
+//         language VARCHAR(50),
+//         siblings VARCHAR(255),
+//         hasConverted BOOLEAN NOT NULL,
+//         isArchived BOOLEAN NOT NULL
+//       );
+//     `);
+//     console.log("WaitlistClient table is created.");
 
-// // Execute each table creation query sequentially
-// async function createTables() {
-//   for (const { query, name } of queries) {
-//     await executeQuery(query, name);
+//     // Create Invoice table
+//     await query(`
+//       CREATE TABLE IF NOT EXISTS Invoice (
+//         invoiceId INT AUTO_INCREMENT PRIMARY KEY,
+//         userId INT NOT NULL,
+//         firstName VARCHAR(50) NOT NULL,
+//         lastName VARCHAR(50) NOT NULL,
+//         month DATE NOT NULL,
+//         rate FLOAT NOT NULL,
+//         hours FLOAT NOT NULL,
+//         isGiven BOOLEAN NOT NULL,
+//         FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+//       );
+//     `);
+//     console.log("Invoice table is created.");
+
+//     console.log("All tables have been created successfully.");
+//   } catch (err) {
+//     console.error("Error creating tables:", err);
 //   }
-//   connection.end(); // Close the connection after all tables are created
-// }
+// };
 
-// createTables()
-//   .then(() => console.log("All tables created successfully."))
-//   .catch((error) => console.error("Error creating tables:", error));
+// // Initialize tables
+// createTables();
 
-module.exports = connection;
+// module.exports = {
+//   query,
+//   end,
+// };

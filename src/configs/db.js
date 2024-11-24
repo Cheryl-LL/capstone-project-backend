@@ -362,6 +362,8 @@ connection.query(createInvoiceTableQuery, (err, results) => {
   console.log("Invoice table is created.");
 });
 
+module.exports = connection;
+
 // const mysql = require("mysql2");
 // require("dotenv").config();
 

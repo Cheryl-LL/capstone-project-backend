@@ -240,9 +240,16 @@ const registerUserController = (req, res) => {
 
   createUser(user, (err, results) => {
     if (err) {
-      return res.status(400).send(err);
+      console.error("Error during user registration:", err);
+      return res
+        .status(400)
+        .send({ error: "Failed to register user", details: err });
     }
-    res.status(201).send(results);
+
+    console.log("User registered successfully:", results);
+    res
+      .status(201)
+      .send({ message: "User created successfully", userId: results.insertId });
   });
 };
 
@@ -292,7 +299,6 @@ const loginUserController = (req, res) => {
     }
   });
 };
-
 
 const requestPasswordReset = async (req, res) => {
   const { email } = req.body;

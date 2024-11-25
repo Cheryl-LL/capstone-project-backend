@@ -31,9 +31,16 @@ const createPrimaryGuardian = (guardian) => {
 };
 
 // Get primary guardian by client ID
-const getPrimaryGuardianByClientId = (clientId, callback) => {
-  const query = "SELECT * FROM PrimaryGuardian WHERE clientId = ?";
-  connection.query(query, [clientId], callback);
+const getPrimaryGuardianByClientId = (clientId) => {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM PrimaryGuardian WHERE clientId = ?";
+    connection.query(query, [clientId], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results);
+    });
+  });
 };
 
 // Update primary guardian

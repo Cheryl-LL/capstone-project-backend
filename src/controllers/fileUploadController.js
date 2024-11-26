@@ -169,6 +169,7 @@ const getFilesByClientIdController = async (req, res) => {
   }
 };
 
+// const getFilesByIdController = async (req, res) => {
 const getFilesByIdController = async (req, res) => {
   const fileId = req.params.fileId;
   const loggedInUserId = req.user.id;
@@ -183,14 +184,12 @@ const getFilesByIdController = async (req, res) => {
     const files = await findFileById(fileId);
 
     if (!files || files.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No files found for the given fileId." });
+      return res.status(404).json({ message: "No files found for the given fileId." });
     }
 
-    const file = files[0]; // Assuming there's only one file per file ID
+    const file = files[0];
 
-    // Check if the user is an admin
+    // Check if the user is authorized
     if (!isAdmin) {
       // If not an admin, check if the user is part of the team for this file's client
       const teamMembers = await getTeamMembersByClientId(file.clientId);
@@ -206,13 +205,40 @@ const getFilesByIdController = async (req, res) => {
       }
     }
 
-    // Return the file information
-    res.status(200).json({ files });
+    // Extract the object name from file.filePath
+    const bucketName = "capstone-upload-ba";
+    const fileName = file.filePath.replace(
+      "https://storage.googleapis.com/capstone-upload-ba/",
+      ""
+    );
+
+    // Check if the file exists in the bucket
+    const fileExists = await storage.bucket(bucketName).file(fileName).exists();
+    if (!fileExists[0]) {
+      return res.status(404).json({ message: "File does not exist in the bucket." });
+    }
+
+    // Generate a signed URL for the private file
+    const options = {
+      version: "v4",
+      action: "read",
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+    };
+
+    const [signedUrl] = await storage.bucket(bucketName).file(fileName).getSignedUrl(options);
+
+    res.status(200).json({
+      fileId: file.fileId,
+      clientId: file.clientId,
+      fileName: file.fileName,
+      fileType: file.fileType,
+      fileSize: file.fileSize,
+      createdAt: file.createdAt,
+      signedUrl,
+    });
   } catch (err) {
     console.error("Error retrieving file:", err);
-    return res
-      .status(500)
-      .json({ message: "Error retrieving file.", error: err });
+    return res.status(500).json({ message: "Error retrieving file.", error: err });
   }
 };
 

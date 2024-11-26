@@ -116,11 +116,25 @@ const getTeamMembersByClientIdController = async (req, res) => {
 
 
 // Controller to get all clients for a specific team member (user or outside provider)
+// const getClientsForTeamMemberController = async (req, res) => {
+//   const { teamMemberId } = req.params;
+
+//   try {
+//     const clients = await getClientsForTeamMember(teamMemberId);
+//     return res.status(200).json({ data: clients });
+//   } catch (err) {
+//     console.error("Error fetching clients for team member:", err);
+//     return res
+//       .status(500)
+//       .json({ message: "Error fetching clients", error: err });
+//   }
+// };
+
 const getClientsForTeamMemberController = async (req, res) => {
-  const { teamMemberId } = req.params;
+  const { userId } = req.params;
 
   try {
-    const clients = await getClientsForTeamMember(teamMemberId);
+    const clients = await getClientsForTeamMember(userId);
     return res.status(200).json({ data: clients });
   } catch (err) {
     console.error("Error fetching clients for team member:", err);

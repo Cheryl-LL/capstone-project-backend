@@ -4,6 +4,7 @@ require("./src/configs/db");
 const helmet = require("helmet");
 const createError = require("http-errors");
 const express = require("express");
+const app = express();
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
@@ -12,7 +13,7 @@ const isProduction = process.env.NODE_ENV === "production";
 const rateLimit = require("express-rate-limit");
 
 // set proxy
-app.set('trust proxy', 1);
+app.set("trust proxy", 1);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -35,8 +36,6 @@ var outsideProviderRouter = require("./src/routes/outsideProvider");
 var staffContractRouter = require("./src/routes/staffContract");
 
 const invoiceRouter = require("./src/routes/invoice"); // new
-
-var app = express();
 
 const corsOptions = {
   origin: true,
@@ -77,7 +76,7 @@ app.use(
           includeSubDomains: true,
           preload: true,
         }
-      : false, 
+      : false,
     noSniff: true,
     xssFilter: true,
     ieNoOpen: true,
@@ -100,7 +99,7 @@ app.use("/client-contract", clientContractRouter);
 app.use("/outside-provider", outsideProviderRouter);
 app.use("/staff-contract", staffContractRouter);
 
-app.use("/invoice", invoiceRouter);//new
+app.use("/invoice", invoiceRouter); //new
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

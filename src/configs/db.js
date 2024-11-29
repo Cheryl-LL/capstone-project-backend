@@ -1,6 +1,6 @@
 const mysql = require("mysql2");
 
-const requireSSL = process.env.REQUIRE_SSL === "true";
+const requireSSL = process.env.REQUIRE_SSL;
 
 // Create a connection to the database
 const connection = mysql.createPool({

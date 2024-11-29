@@ -11,6 +11,7 @@ const cors = require("cors");
 const isProduction = process.env.NODE_ENV === "production";
 const rateLimit = require("express-rate-limit");
 
+// set proxy
 app.set('trust proxy', 1);
 
 const limiter = rateLimit({

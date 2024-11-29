@@ -73,24 +73,6 @@ const updateTeamMemberDates = (teamMemberId, startServiceDate, endServiceDate) =
 };
 
 
-// Function to get all clients for a team member
-// const getClientsForTeamMember = (teamMemberId) => {
-//   return new Promise((resolve, reject) => {
-//     const query = `
-//       SELECT ec.*
-//       FROM ExistingClient ec
-//       JOIN TeamMember tm ON ec.clientId = tm.clientId
-//       WHERE tm.userId = ? OR tm.outsideProviderId = ?
-//     `;
-//     connection.query(query, [teamMemberId, teamMemberId], (err, results) => {
-//       if (err) {
-//         return reject(err);
-//       }
-//       resolve(results);
-//     });
-//   });
-// };
-
 const getClientsForTeamMember = (teamMemberId) => {
   return new Promise((resolve, reject) => {
     const query = `
@@ -108,7 +90,7 @@ const getClientsForTeamMember = (teamMemberId) => {
   });
 };
 
-// Function to unassign a team member
+// Function to unassign a team member from the team
 const unassignTeamMember = (clientId, teamMemberId, isOutsideProvider = false) => {
   return new Promise((resolve, reject) => {
     const query = `

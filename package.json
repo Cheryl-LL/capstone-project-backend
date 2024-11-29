@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "vercel-build": "npm install"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.13.0",

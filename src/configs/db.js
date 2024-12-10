@@ -147,7 +147,7 @@ connection.query(createUserTableQuery, (err, results) => {
     COUShours INT,
     CARhours INT,
     FOREIGN KEY (clientId) REFERENCES ExistingClient(clientId) ON DELETE CASCADE,
-    FOREIGN KEY (fileId) REFERENCES Files(fileId) ON DELETE CASCADE
+    FOREIGN KEY (fileId) REFERENCES files(fileId) ON DELETE CASCADE
   );
   `;
 
@@ -326,8 +326,8 @@ CREATE TABLE IF NOT EXISTS staffContract (
     fileId INT NOT NULL,
     startDate DATE NOT NULL,
     endDate DATE NOT NULL,
-    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE,
-    FOREIGN KEY (fileId) REFERENCES Files(fileId) ON DELETE CASCADE
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (fileId) REFERENCES files(fileId) ON DELETE CASCADE
 );
     `;
 
